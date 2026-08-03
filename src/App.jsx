@@ -1,41 +1,46 @@
-import RecentClients from "./components/RecentClients";
-import RecentProjects from "./components/RecentProjects";
-import ActivityFeed from "./components/ActivityFeed";
+import React, { useState } from 'react';
+import { clients as initialClients } from './data/clients';
+import SearchBar from './components/SearchBar';
+import FilterDropdown from './components/FilterDropdown';
+import ClientCard from './components/ClientCard';
+import ActionButton from './components/ActionButton';
+import EmptyState from './components/EmptyState';
 
-export default function App() {
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return "Good Morning";
-    if (hour < 18) return "Good Afternoon";
-    return "Good Evening";
-  };
-
-  const userName = "Dipak";
-  const activeProjectsCount = 5;
+function App() {
+  const [clientList, setClientList] = useState(initialClients);
 
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-100 p-6 md:p-10">
+    <div className="min-h-screen bg-slate-950 text-slate-100 p-6 md:p-10 font-sans">
       <div className="max-w-6xl mx-auto space-y-8">
         
-        <header className="space-y-1">
-          <h1 className="text-3xl font-extrabold tracking-tight text-white flex items-center gap-2">
-            {getGreeting()}, {userName} <span className="animate-bounce">👋</span>
-          </h1>
-          <p className="text-slate-400 text-sm">
-            You have <span className="text-purple-400 font-semibold">{activeProjectsCount} active projects</span> today.
-          </p>
+        <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-white">Clients</h1>
+            <p className="text-sm text-slate-400 mt-1">Manage all your freelance clients</p>
+          </div>
+          <ActionButton text="Add Client" icon="+" variant="primary" />
         </header>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <RecentClients />
-          <RecentProjects />
+        <div className="flex flex-col sm:flex-row items-center gap-4">
+          <div className="w-full sm:flex-1">
+            <SearchBar />
+          </div>
+          <FilterDropdown />
         </div>
 
-        <div className="w-full">
-          <ActivityFeed />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {clientList.length > 0 ? (
+            clientList.map((client) => (
+              <ClientCard key={client.id} client={client} />
+            ))
+          ) : (
+            <EmptyState />
+          )}
         </div>
-        
+
       </div>
-    </main>
+    </div>
   );
 }
+
+export default App;

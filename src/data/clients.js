@@ -1,23 +1,34 @@
-export const clientsData = [
+export const clients = [
   {
     id: 1,
     name: "Alex Morgan",
     service: "Web Development",
+    budget: 25000,
     status: "Active",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex",
+    avatar: "https://i.pravatar.cc/150?img=11"
   },
   {
     id: 2,
-    name: "Sarah Chis",
+    name: "Sarah Jenkins",
     service: "UI/UX Design",
+    budget: 18000,
     status: "Pending",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah",
+    avatar: "https://i.pravatar.cc/150?img=5"
   },
   {
     id: 3,
-    name: "David Miller",
+    name: "Michael Chen",
     service: "Mobile App Development",
+    budget: 35000,
     status: "Completed",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=David",
+    avatar: "https://i.pravatar.cc/150?img=13"
   },
+  {
+    id: 4,
+    name: "Emma Watson",
+    service: "Brand Strategy",
+    budget: 12000,
+    status: "Active",
+    avatar: "https://i.pravatar.cc/150?img=9"
+  }
 ];
