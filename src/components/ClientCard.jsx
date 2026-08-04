@@ -1,45 +1,32 @@
 import React from 'react';
-import ActionButton from './ActionButton';
 
-const ClientCard = ({ client }) => {
-  const statusColors = {
-    Active: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-    Pending: "bg-amber-500/10 text-amber-400 border-amber-500/20",
-    Completed: "bg-blue-500/10 text-blue-400 border-blue-500/20"
-  };
-
+export default function ClientCard({ client, onDelete }) {
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between space-y-4 hover:-translate-y-1 hover:border-violet-500 hover:shadow-xl hover:shadow-violet-500/10 transition-all duration-300">
-      <div className="flex items-start justify-between">
-        <div className="flex items-center space-x-3">
-          <img 
-            src={client.avatar} 
-            alt={client.name} 
-            className="w-12 h-12 rounded-full object-cover border border-slate-700 shadow-inner" 
-          />
-          <div>
-            <h3 className="text-base font-semibold text-slate-100">{client.name}</h3>
-            <p className="text-xs text-slate-400">{client.service}</p>
-          </div>
+    <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-md 
+                    transition-all duration-300 transform hover:-translate-y-1 
+                    hover:border-violet-500/50 hover:shadow-lg hover:shadow-violet-500/10 
+                    flex flex-col justify-between">
+      <div>
+        <div className="flex justify-between items-start mb-2">
+          <h3 className="text-lg font-semibold text-white">{client.name}</h3>
+          <span className="px-2.5 py-0.5 text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full">
+            {client.status || 'Active'}
+          </span>
         </div>
-        <span className={`text-xs px-2.5 py-1 rounded-full border font-medium ${statusColors[client.status] || "bg-slate-800 text-slate-300"}`}>
-          {client.status}
-        </span>
+        <p className="text-sm text-slate-400">{client.company}</p>
       </div>
 
-      <div className="pt-3 border-t border-slate-800 flex items-center justify-between">
-        <div>
-          <span className="text-xs text-slate-500 block">Budget</span>
-          <span className="text-sm font-semibold text-slate-200">${client.budget.toLocaleString()}</span>
-        </div>
-
-        <div className="flex items-center space-x-2">
-          <ActionButton text="Edit" variant="secondary" />
-          <ActionButton text="Delete" variant="danger" />
-        </div>
+      <div className="flex justify-between items-center pt-4 mt-4 border-t border-slate-800">
+        <span className="text-sm font-bold text-violet-400">₹{client.budget?.toLocaleString('en-IN')}</span>
+        {onDelete && (
+          <button 
+            onClick={() => onDelete(client.id)} 
+            className="text-xs text-red-400 hover:text-red-300 transition-colors"
+          >
+            Delete
+          </button>
+        )}
       </div>
     </div>
   );
-};
-
-export default ClientCard;
+}
