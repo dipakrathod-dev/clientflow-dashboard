@@ -1,73 +1,70 @@
-import React, { useState, useEffect } from 'react';
-import { clients as initialClients } from '../data/clients';
-import SearchBar from '../components/SearchBar';
-import FilterDropdown from '../components/FilterDropDown';
-import ClientCard from '../components/ClientCard';
-import ActionButton from '../components/ActionButton';
-import EmptyState from '../components/EmptyState';
-import SkeletonCard from '../components/SkeletonCard';
-import StateCard from '../components/StateCard';
+import { useEffect, useState } from 'react';
+import { getClients, deleteClient } from '../utils/clientService';
 
 export default function Clients() {
-  const [clientList, setClientList] = useState(initialClients);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedFilter, setSelectedFilter] = useState('All');
+  const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 1000);
-    return () => clearTimeout(timer);
-  }, []);
-
-  const filteredClients = clientList.filter((client) => {
-    const matchesSearch = client.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          client.company?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesFilter = selectedFilter === 'All' || client.status === selectedFilter;
-    return matchesSearch && matchesFilter;
-  });
-
-  const handleDelete = (id) => {
-    setClientList((prev) => prev.filter((c) => c.id !== id));
+  const fetchClients = async () => {
+    setLoading(true);
+    try {
+      const data = await getClients();
+      setClients(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  return (
-    <div className="space-y-6 animate-fade-in p-6">
-      
-      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white">Clients</h1>
-          <p className="text-sm text-slate-400 mt-1">Manage all your freelance clients</p>
-        </div>
-        <ActionButton text="Add Client" icon="+" variant="primary" />
-      </header>
+  useEffect(() => {
+    fetchClients();
+  }, []);
 
-      <StateCard title="Total Client Budget" value="₹90,000" change="+12.5%" />
+  const handleDelete = async (id) => {
+    await deleteClient(id);
+    setClients(clients.filter(c => c.id !== id));
+  };
 
-      {/* Controls */}
-      <div className="flex flex-col sm:flex-row items-center gap-4">
-        <div className="w-full sm:flex-1">
-          <SearchBar value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
-        </div>
-        <FilterDropdown value={selectedFilter} onChange={(e) => setSelectedFilter(e.target.value)} />
+  if (loading) {
+    return (
+      <div className="p-6 space-y-4">
+        <div className="h-10 bg-slate-200 animate-pulse rounded"></div>
+        <div className="h-10 bg-slate-200 animate-pulse rounded"></div>
+        <div className="h-10 bg-slate-200 animate-pulse rounded"></div>
       </div>
+    );
+  }
 
-      {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <SkeletonCard />
-          <SkeletonCard />
-          <SkeletonCard />
-          <SkeletonCard />
-        </div>
-      ) : filteredClients.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {filteredClients.map((client) => (
-            <ClientCard key={client.id} client={client} onDelete={handleDelete} />
-          ))}
-        </div>
-      ) : (
-        <EmptyState />
-      )}
+  if (clients.length === 0) {
+    return (
+      <div className="text-center p-12">
+        <p className="text-2xl">👋</p>
+        <p className="font-semibold text-lg mt-2">No Clients Yet</p>
+        <p className="text-gray-500">Add your first client.</p>
+      </div>
+    );
+  }
 
+  return (
+    <div className="p-6">
+      <h2 className="text-xl font-bold mb-4">Clients List</h2>
+      <div className="space-y-2">
+        {clients.map((client) => (
+          <div key={client.id} className="flex justify-between items-center border p-3 rounded">
+            <div>
+              <p className="font-medium">{client.name}</p>
+              <p className="text-sm text-gray-500">{client.email}</p>
+            </div>
+            <button 
+              onClick={() => handleDelete(client.id)}
+              className="bg-red-500 text-white px-3 py-1 rounded"
+            >
+              Delete
+            </button>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
