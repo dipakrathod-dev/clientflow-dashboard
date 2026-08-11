@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Search, X, ChevronRight } from 'lucide-react';
-import { searchItemsData } from '../data/mockData';
+import { searchItemsData } from '../data/mockdata';
 
 export default function SearchModal({ isOpen, onClose }) {
   const [query, setQuery] = useState('');

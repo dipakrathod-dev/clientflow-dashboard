@@ -1,6 +1,6 @@
 import React from 'react';
 import { Bell, CheckCircle2, MessageSquare, DollarSign, UserPlus } from 'lucide-react';
-import { notificationsData } from '../data/mockData';
+import { notificationsData } from '../data/mockdata';
 
 export default function NotificationDropdown({ isOpen, onClose }) {
   if (!isOpen) return null;
