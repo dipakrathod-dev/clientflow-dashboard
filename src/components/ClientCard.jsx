@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function ClientCard({ client, onDelete }) {
+export default function ClientCard({ client, onEdit, onDelete }) {
   return (
     <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-md 
                     transition-all duration-300 transform hover:-translate-y-1 
@@ -14,18 +14,15 @@ export default function ClientCard({ client, onDelete }) {
           </span>
         </div>
         <p className="text-sm text-slate-400">{client.company}</p>
+        {client.email && <p className="text-xs text-slate-500 mt-1">{client.email}</p>}
       </div>
 
       <div className="flex justify-between items-center pt-4 mt-4 border-t border-slate-800">
-        <span className="text-sm font-bold text-violet-400">₹{client.budget?.toLocaleString('en-IN')}</span>
-        {onDelete && (
-          <button 
-            onClick={() => onDelete(client.id)} 
-            className="text-xs text-red-400 hover:text-red-300 transition-colors"
-          >
-            Delete
-          </button>
-        )}
+        <span className="text-sm font-bold text-violet-400">₹{Number(client.budget || 0).toLocaleString('en-IN')}</span>
+        <div className="flex items-center gap-3">
+          {onEdit && <button type="button" onClick={() => onEdit(client)} className="text-xs text-slate-300 hover:text-white transition-colors">Edit</button>}
+          {onDelete && <button type="button" onClick={() => onDelete(client.id)} className="text-xs text-red-400 hover:text-red-300 transition-colors">Delete</button>}
+        </div>
       </div>
     </div>
   );

@@ -62,15 +62,6 @@ export default function ProjectCard({ project }) {
         </div>
       </div>
 
-      <div className="flex items-center gap-3 pt-1">
-        <button className="flex-1 py-2 text-xs font-semibold text-white bg-violet-600 hover:bg-violet-500 rounded-xl transition-all duration-200">
-          View
-        </button>
-        <button className="flex-1 py-2 text-xs font-semibold text-slate-300 bg-slate-800 hover:bg-slate-700 rounded-xl transition-all duration-200">
-          Edit
-        </button>
-      </div>
-
     </div>
   );
 }

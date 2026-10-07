@@ -3,11 +3,10 @@ import { invoicesData } from '../data/invoices';
 import SearchBar from '../components/SearchBar';
 import FilterDropdown from '../components/FilterDropDown';
 import InvoiceCard from '../components/InvoiceCard';
-import ActionButton from '../components/ActionButton';
 import EmptyState from '../components/EmptyState';
 
 export default function Invoices() {
-  const [invoicesList, setInvoicesList] = useState(invoicesData);
+  const invoicesList = invoicesData;
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('All');
 
@@ -38,9 +37,8 @@ export default function Invoices() {
       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-white">Invoices</h1>
-          <p className="text-sm text-slate-400 mt-1">Track payments and manage invoices.</p>
+          <p className="text-sm text-slate-400 mt-1">Sample invoices for the dashboard preview.</p>
         </div>
-        <ActionButton text="+ Create Invoice" variant="primary" />
       </header>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

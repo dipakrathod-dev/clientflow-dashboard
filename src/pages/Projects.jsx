@@ -3,11 +3,10 @@ import { projectsData } from '../data/projects';
 import SearchBar from '../components/SearchBar';
 import FilterDropdown from '../components/FilterDropDown';
 import ProjectCard from '../components/ProjectCard';
-import ActionButton from '../components/ActionButton';
 import EmptyState from '../components/EmptyState';
 
 export default function Projects() {
-  const [projectsList, setProjectsList] = useState(projectsData);
+  const projectsList = projectsData;
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('All');
 
@@ -31,9 +30,8 @@ export default function Projects() {
       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-white">Projects</h1>
-          <p className="text-sm text-slate-400 mt-1">Manage all your ongoing projects.</p>
+          <p className="text-sm text-slate-400 mt-1">Sample projects for the dashboard preview.</p>
         </div>
-        <ActionButton text="+ New Project" variant="primary" />
       </header>
 
       <div className="flex flex-col sm:flex-row items-center gap-4">

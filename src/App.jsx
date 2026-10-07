@@ -1,17 +1,19 @@
-import React from 'react';
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { AuthProvider } from './context/AuthContext.jsx';
+import { useAuth } from './hooks/useAuth';
 import DashboardLayout from './layout/DashboardLayout';
-import Dashboard from './pages/Dashboard';
-import Clients from './pages/Clients';
-import Projects from './pages/Projects';
-import Invoices from './pages/Invoice';
-import Settings from './pages/Settings';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import ForgotPassword from './pages/ForgotPassword';
-import NotFound from './pages/NotFound';
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const Clients = lazy(() => import('./pages/Clients'));
+const Projects = lazy(() => import('./pages/Projects'));
+const Invoices = lazy(() => import('./pages/Invoice'));
+const Settings = lazy(() => import('./pages/Settings'));
+const Login = lazy(() => import('./pages/Login'));
+const Register = lazy(() => import('./pages/Register'));
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
+const NotFound = lazy(() => import('./pages/NotFound'));
+const Profile = lazy(() => import('./pages/Profile'));
 
 const ProtectedRoute = ({ children }) => {
   const { currentUser } = useAuth();
@@ -38,6 +40,7 @@ export default function App() {
           }} 
         />
 
+        <Suspense fallback={<div className="min-h-screen bg-slate-950 p-8 text-slate-400" role="status">Loading ClientFlow...</div>}>
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
@@ -103,7 +106,7 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <DashboardLayout>
-                  <div className="p-8 text-2xl font-bold text-white">👤 Profile Page</div>
+                  <Profile />
                 </DashboardLayout>
               </ProtectedRoute>
             }
@@ -111,6 +114,7 @@ export default function App() {
 
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </Suspense>
       </BrowserRouter>
     </AuthProvider>
   );

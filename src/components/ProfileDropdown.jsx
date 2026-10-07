@@ -1,17 +1,32 @@
 import React from 'react';
 import { User, Settings, LogOut } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
+import toast from 'react-hot-toast';
 
 export default function ProfileDropdown({ isOpen, onClose }) {
+  const { currentUser, logout } = useAuth();
+
   if (!isOpen) return null;
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      onClose();
+    } catch {
+      toast.error('Unable to sign out. Please try again.');
+    }
+  };
+
+  const displayName = currentUser?.displayName || currentUser?.email?.split('@')[0] || 'Account';
 
   return (
     <>
       <div className="fixed inset-0 z-30" onClick={onClose} />
       <div className="absolute right-0 mt-3 w-56 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl z-40 p-1.5 space-y-1 animate-in fade-in duration-150">
         <div className="p-2.5 border-b border-slate-100 dark:border-slate-800">
-          <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">Rohan Dev</p>
-          <p className="text-xs text-slate-400">rohan@example.com</p>
+          <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">{displayName}</p>
+          <p className="text-xs text-slate-400">{currentUser?.email}</p>
         </div>
 
         <Link
@@ -31,10 +46,7 @@ export default function ProfileDropdown({ isOpen, onClose }) {
         </Link>
 
         <button
-          onClick={() => {
-            alert('Logged out!');
-            onClose();
-          }}
+          onClick={handleLogout}
           className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition text-left"
         >
           <LogOut size={16} /> Logout

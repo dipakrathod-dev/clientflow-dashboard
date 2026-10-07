@@ -1,8 +1,19 @@
-import { createContext, useContext, useEffect, useState } from 'react';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged,updateProfile } from 'firebase/auth';
+import { useEffect, useState } from 'react';
+import { AuthContext } from './authContext';
+import {
+  browserLocalPersistence,
+  browserSessionPersistence,
+  createUserWithEmailAndPassword,
+  GoogleAuthProvider,
+  onAuthStateChanged,
+  sendPasswordResetEmail,
+  setPersistence,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  signOut,
+  updateProfile,
+} from 'firebase/auth';
 import { auth } from '../firebase/firebase';
-
-const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
@@ -20,6 +31,14 @@ export const AuthProvider = ({ children }) => {
         return 'Password should be at least 6 characters.';
       case 'auth/invalid-email':
         return 'Please enter a valid email address.';
+      case 'auth/too-many-requests':
+        return 'Too many attempts. Please wait a moment and try again.';
+      case 'auth/network-request-failed':
+        return 'Network error. Check your connection and try again.';
+      case 'auth/popup-closed-by-user':
+        return 'Google sign-in was closed before completion.';
+      case 'auth/unauthorized-domain':
+        return 'This domain is not enabled for sign-in in Firebase.';
       default:
         return 'An error occurred. Please try again.';
     }
@@ -33,9 +52,17 @@ export const AuthProvider = ({ children }) => {
     return res;
   };
 
-  const login = (email, password) => {
+  const login = async (email, password, rememberMe = true) => {
+    await setPersistence(auth, rememberMe ? browserLocalPersistence : browserSessionPersistence);
     return signInWithEmailAndPassword(auth, email, password);
   };
+
+  const loginWithGoogle = async () => {
+    await setPersistence(auth, browserLocalPersistence);
+    return signInWithPopup(auth, new GoogleAuthProvider());
+  };
+
+  const resetPassword = (email) => sendPasswordResetEmail(auth, email);
 
   const logout = () => {
     return signOut(auth);
@@ -50,10 +77,8 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ currentUser, register, login, logout, formatError }}>
+    <AuthContext.Provider value={{ currentUser, register, login, loginWithGoogle, resetPassword, logout, formatError }}>
       {!loading && children}
     </AuthContext.Provider>
   );
 };
-
-export const useAuth = () => useContext(AuthContext);

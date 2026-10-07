@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Search, Bell, Sun, Moon, Menu } from 'lucide-react';
 import NotificationDropdown from './NotificationDropdown.jsx';
 import ProfileDropdown from './ProfileDropdown.jsx';
+import { useAuth } from '../hooks/useAuth';
 
 export default function TopHeader({ onOpenMobile, isDarkMode, setIsDarkMode, onOpenSearch }) {
+  const { currentUser } = useAuth();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
 
@@ -67,11 +69,17 @@ export default function TopHeader({ onOpenMobile, isDarkMode, setIsDarkMode, onO
             }}
             className="flex items-center gap-2 p-1 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition"
           >
-            <img
-              src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
-              alt="Profile"
-              className="w-8 h-8 rounded-lg object-cover ring-2 ring-indigo-500/20"
-            />
+            {currentUser?.photoURL ? (
+              <img
+                src={currentUser.photoURL}
+                alt=""
+                className="w-8 h-8 rounded-lg object-cover ring-2 ring-indigo-500/20"
+              />
+            ) : (
+              <span className="w-8 h-8 rounded-lg bg-violet-600 text-white text-sm font-semibold grid place-items-center ring-2 ring-indigo-500/20">
+                {(currentUser?.displayName || currentUser?.email || 'U').charAt(0).toUpperCase()}
+              </span>
+            )}
           </button>
           <ProfileDropdown isOpen={showProfile} onClose={() => setShowProfile(false)} />
         </div>

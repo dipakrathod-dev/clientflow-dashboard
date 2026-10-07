@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bell, CheckCircle2, MessageSquare, DollarSign, UserPlus } from 'lucide-react';
+import { Bell, MessageSquare, DollarSign, UserPlus } from 'lucide-react';
 import { notificationsData } from '../data/mockdata';
 
 export default function NotificationDropdown({ isOpen, onClose }) {
@@ -20,7 +20,7 @@ export default function NotificationDropdown({ isOpen, onClose }) {
             <Bell size={18} /> Notifications
           </h3>
           <span className="text-xs bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 px-2 py-0.5 rounded-full font-medium">
-            4 New
+            Demo
           </span>
         </div>
 

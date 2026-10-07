@@ -43,14 +43,6 @@ export default function InvoiceCard({ invoice }) {
         </div>
       </div>
 
-      <div className="flex items-center gap-3 pt-1">
-        <button className="flex-1 py-2 text-xs font-semibold text-white bg-slate-800 hover:bg-slate-700 rounded-xl transition-all duration-200">
-          View
-        </button>
-        <button className="flex-1 py-2 text-xs font-semibold text-violet-300 bg-violet-600/20 hover:bg-violet-600 hover:text-white border border-violet-500/30 rounded-xl transition-all duration-200 flex items-center justify-center gap-1.5">
-          <span>📄</span> Download PDF
-        </button>
-      </div>
     </div>
   );
 }

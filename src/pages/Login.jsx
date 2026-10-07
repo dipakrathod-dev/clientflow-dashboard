@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 
 export default function Login() {
   const navigate = useNavigate();
+  const { login, loginWithGoogle, formatError } = useAuth();
   const [formData, setFormData] = useState({ email: '', password: '', rememberMe: false });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
@@ -25,10 +27,27 @@ export default function Login() {
     }
 
     setLoading(true);
-    setTimeout(() => {
+    try {
+      await login(formData.email.trim(), formData.password, formData.rememberMe);
+      navigate('/', { replace: true });
+    } catch (err) {
+      setError(formatError(err.code));
+    } finally {
       setLoading(false);
-      navigate('/');
-    }, 1500);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setError('');
+    setLoading(true);
+    try {
+      await loginWithGoogle();
+      navigate('/', { replace: true });
+    } catch (err) {
+      setError(formatError(err.code));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -121,7 +140,7 @@ export default function Login() {
           </div>
         </div>
 
-        <button className="w-full py-3 px-4 bg-slate-800/50 hover:bg-slate-800 text-slate-200 text-xs font-semibold rounded-xl border border-slate-700/80 transition-all duration-200 flex items-center justify-center gap-2">
+        <button type="button" onClick={handleGoogleSignIn} disabled={loading} className="w-full py-3 px-4 bg-slate-800/50 hover:bg-slate-800 disabled:opacity-50 text-slate-200 text-xs font-semibold rounded-xl border border-slate-700/80 transition-all duration-200 flex items-center justify-center gap-2">
           <svg className="w-4 h-4" viewBox="0 0 24 24">
             <path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.2 9 5 12 5z" />
             <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z" />

@@ -32,7 +32,8 @@ const clientGrowthData = [
 export function RevenueChart() {
   return (
     <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
-      <h3 className="text-lg font-semibold text-white mb-4">Revenue Trends</h3>
+      <h3 className="text-lg font-semibold text-white mb-1">Revenue Trends</h3>
+      <p className="text-xs text-slate-500 mb-4">Sample data</p>
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={revenueData}>
@@ -57,7 +58,8 @@ export function RevenueChart() {
 export function ClientGrowthChart() {
   return (
     <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
-      <h3 className="text-lg font-semibold text-white mb-4">Client Growth</h3>
+      <h3 className="text-lg font-semibold text-white mb-1">Client Growth</h3>
+      <p className="text-xs text-slate-500 mb-4">Sample data</p>
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={clientGrowthData}>

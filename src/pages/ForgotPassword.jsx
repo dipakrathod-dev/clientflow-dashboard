@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 
 export default function ForgotPassword() {
+  const { resetPassword, formatError } = useAuth();
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
@@ -17,10 +19,14 @@ export default function ForgotPassword() {
     }
 
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      await resetPassword(email.trim());
       setSuccess(true);
-    }, 1500);
+    } catch (err) {
+      setError(formatError(err.code));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
