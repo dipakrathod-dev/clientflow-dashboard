@@ -2,6 +2,8 @@
 
 ClientFlow is a responsive dashboard prototype for freelancers. Firebase Authentication protects the app, and each account's client records are stored in Firestore. Project and invoice screens and the trend charts currently use clearly labeled sample data.
 
+- **Live dashboard:** https://clientflow-dashboard-dev.vercel.app/
+
 ## 🛠️ Tech Stack
 * **Frontend:** React, Vite, Tailwind CSS
 * **Backend / Database:** Firebase Authentication, Firestore
