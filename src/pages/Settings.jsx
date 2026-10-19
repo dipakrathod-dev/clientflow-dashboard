@@ -3,8 +3,32 @@ import toast from 'react-hot-toast';
 import { useAuth } from '../hooks/useAuth';
 
 export default function Settings() {
-  const { currentUser, resetPassword, formatError, logout } = useAuth();
+  const { currentUser, resetPassword, updateDisplayName, formatError, logout } = useAuth();
+  const fallbackName = currentUser?.displayName || currentUser?.email?.split('@')[0] || '';
+  const [name, setName] = useState(fallbackName);
   const [isSendingReset, setIsSendingReset] = useState(false);
+  const [isSavingName, setIsSavingName] = useState(false);
+
+  const handleNameSave = async (event) => {
+    event.preventDefault();
+    const trimmedName = name.trim();
+
+    if (!trimmedName) {
+      toast.error('Please enter a display name.');
+      return;
+    }
+
+    setIsSavingName(true);
+    try {
+      await updateDisplayName(trimmedName);
+      setName(trimmedName);
+      toast.success('Display name updated.');
+    } catch (error) {
+      toast.error(formatError(error.code));
+    } finally {
+      setIsSavingName(false);
+    }
+  };
 
   const handlePasswordReset = async () => {
     if (!currentUser?.email) {
@@ -53,6 +77,34 @@ export default function Settings() {
             <p className="text-sm text-slate-400">{currentUser?.email}</p>
           </div>
         </div>
+      </section>
+
+      <section className="rounded-2xl border border-slate-800 bg-slate-900/80 p-6" aria-labelledby="profile-heading">
+        <h2 id="profile-heading" className="text-lg font-semibold">Profile details</h2>
+        <p className="mt-2 text-sm text-slate-400">Update the name shown across your ClientFlow account.</p>
+        <form onSubmit={handleNameSave} className="mt-5 space-y-4">
+          <div>
+            <label htmlFor="display-name" className="text-sm font-medium text-slate-200">Display name</label>
+            <input
+              id="display-name"
+              type="text"
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              maxLength={100}
+              autoComplete="name"
+              className="mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20"
+              aria-describedby="display-name-hint"
+            />
+            <p id="display-name-hint" className="mt-1.5 text-xs text-slate-500">Use up to 100 characters.</p>
+          </div>
+          <button
+            type="submit"
+            disabled={isSavingName}
+            className="rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {isSavingName ? 'Saving...' : 'Save display name'}
+          </button>
+        </form>
       </section>
 
       <section className="rounded-2xl border border-slate-800 bg-slate-900/80 p-6" aria-labelledby="security-heading">

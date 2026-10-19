@@ -55,7 +55,10 @@ export default function Projects() {
           ))}
         </div>
       ) : (
-        <EmptyState />
+        <EmptyState
+          title="No matching projects"
+          message="Try a different search term or status filter."
+        />
       )}
 
     </div>

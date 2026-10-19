@@ -82,7 +82,10 @@ export default function Invoices() {
           ))}
         </div>
       ) : (
-        <EmptyState />
+        <EmptyState
+          title="No matching invoices"
+          message="Try a different search term or payment status filter."
+        />
       )}
     </div>
   );

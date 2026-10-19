@@ -64,6 +64,15 @@ export const AuthProvider = ({ children }) => {
 
   const resetPassword = (email) => sendPasswordResetEmail(auth, email);
 
+  const updateDisplayName = async (name) => {
+    if (!auth.currentUser) {
+      throw new Error('No signed-in user.');
+    }
+
+    await updateProfile(auth.currentUser, { displayName: name });
+    setCurrentUser({ ...auth.currentUser });
+  };
+
   const logout = () => {
     return signOut(auth);
   };
@@ -77,7 +86,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ currentUser, register, login, loginWithGoogle, resetPassword, logout, formatError }}>
+    <AuthContext.Provider value={{ currentUser, register, login, loginWithGoogle, resetPassword, updateDisplayName, logout, formatError }}>
       {!loading && children}
     </AuthContext.Provider>
   );

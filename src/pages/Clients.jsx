@@ -139,7 +139,11 @@ export default function Clients() {
           ))}
         </div>
       ) : (
-        <EmptyState onAdd={openAddForm} />
+        <EmptyState
+          title={clients.length ? 'No matching clients' : 'No Clients Yet'}
+          message={clients.length ? 'Try a different search term.' : "You haven't added any clients yet."}
+          onAdd={openAddForm}
+        />
       )}
 
       {formOpen && (

@@ -9,20 +9,43 @@ const navItems = [
   { name: 'Settings', path: '/settings' },
 ];
 
-export default function SideBar() {
+export default function SideBar({ isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen }) {
   return (
-    <aside className="w-64 bg-slate-900 border-r border-slate-800 min-h-screen p-4 flex flex-col justify-between">
+    <>
+      {isMobileOpen && (
+        <button
+          type="button"
+          aria-label="Close navigation"
+          onClick={() => setIsMobileOpen(false)}
+          className="fixed inset-0 z-30 bg-black/60 lg:hidden"
+        />
+      )}
+      <aside className={`fixed inset-y-0 left-0 z-40 flex min-h-screen flex-col justify-between border-r border-slate-800 bg-slate-900 p-4 transition-all duration-300 ${
+        isCollapsed ? 'lg:w-20' : 'lg:w-64'
+      } ${isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
       <div>
-        <div className="text-xl font-bold text-white mb-8 px-4 flex items-center gap-2">
-          <span className="p-1.5 bg-violet-600 rounded-lg text-xs">⚡</span> SaaS Pro
+        <div className={`mb-8 flex items-center gap-2 text-xl font-bold text-white ${isCollapsed ? 'lg:justify-center lg:px-0' : 'px-4'}`}>
+          <span className="rounded-lg bg-violet-600 p-1.5 text-xs">⚡</span>
+          <span className={isCollapsed ? 'lg:hidden' : ''}>SaaS Pro</span>
+          <button
+            type="button"
+            aria-label={isCollapsed ? 'Expand navigation' : 'Collapse navigation'}
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="ml-auto hidden rounded-lg p-1 text-slate-400 hover:bg-slate-800 hover:text-white lg:block"
+          >
+            {isCollapsed ? '→' : '←'}
+          </button>
         </div>
         <nav className="space-y-1">
           {navItems.map((item) => (
             <NavLink
               key={item.path}
               to={item.path}
+              onClick={() => setIsMobileOpen(false)}
+              title={isCollapsed ? item.name : undefined}
               className={({ isActive }) => `
-                relative flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200
+                relative flex items-center rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200
+                ${isCollapsed ? 'lg:justify-center lg:px-2' : ''}
                 ${isActive 
                   ? 'bg-slate-800/80 text-violet-400 font-semibold' 
                   : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'}
@@ -33,13 +56,14 @@ export default function SideBar() {
                   {isActive && (
                     <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-violet-500 rounded-r-full shadow-[0_0_10px_rgba(139,92,246,0.8)]" />
                   )}
-                  {item.name}
+                  <span className={isCollapsed ? 'lg:hidden' : ''}>{item.name}</span>
                 </>
               )}
             </NavLink>
           ))}
         </nav>
       </div>
-    </aside>
+      </aside>
+    </>
   );
 }
