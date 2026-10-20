@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../hooks/useAuth';
+import { useAsyncState } from '../hooks/useAsyncState';
 import ClientCard from '../components/ClientCard';
 import DeleteModal from '../components/DeleteModal';
 import EmptyState from '../components/EmptyState';
@@ -11,8 +12,6 @@ const emptyForm = { name: '', email: '', company: '', budget: '', status: 'Activ
 
 export default function Clients() {
   const { currentUser } = useAuth();
-  const [clients, setClients] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [formOpen, setFormOpen] = useState(false);
@@ -21,25 +20,21 @@ export default function Clients() {
   const [formData, setFormData] = useState(emptyForm);
 
   const fetchClients = useCallback(async () => {
-    if (!currentUser?.uid) {
-      setClients([]);
-      setLoading(false);
-      return;
-    }
-
-    setLoading(true);
-    try {
-      setClients(await getClients(currentUser.uid));
-    } catch {
-      toast.error('Could not load clients. Please try again.');
-    } finally {
-      setLoading(false);
-    }
+    return currentUser?.uid ? getClients(currentUser.uid) : [];
   }, [currentUser?.uid]);
 
+  const {
+    data: clients,
+    loading,
+    execute: executeFetchClients,
+    updateData: updateClients,
+  } = useAsyncState(fetchClients, { initialData: [], initialLoading: true });
+
   useEffect(() => {
-    fetchClients();
-  }, [fetchClients]);
+    executeFetchClients().catch(() => {
+      toast.error('Could not load clients. Please try again.');
+    });
+  }, [executeFetchClients]);
 
   const filteredClients = useMemo(() => {
     const search = searchQuery.trim().toLowerCase();
@@ -90,7 +85,7 @@ export default function Clients() {
         toast.success('Client added.');
       }
       closeForm();
-      await fetchClients();
+      await executeFetchClients().catch(() => undefined);
     } catch {
       toast.error('Could not save this client. Please try again.');
     } finally {
@@ -102,7 +97,7 @@ export default function Clients() {
     if (!currentUser?.uid || !deleteTarget) return;
     try {
       await deleteClient(deleteTarget.id);
-      setClients((previous) => previous.filter((client) => client.id !== deleteTarget.id));
+      updateClients((previous) => previous.filter((client) => client.id !== deleteTarget.id));
       setDeleteTarget(null);
       toast.success('Client deleted.');
     } catch {
