@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../hooks/useAuth';
 import { useAsyncState } from '../hooks/useAsyncState';
@@ -18,6 +18,15 @@ export default function Clients() {
   const [editingClient, setEditingClient] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [formData, setFormData] = useState(emptyForm);
+  const mountedRef = useRef(false);
+
+  useEffect(() => {
+    mountedRef.current = true;
+
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   const fetchClients = useCallback(async () => {
     return currentUser?.uid ? getClients(currentUser.uid) : [];
@@ -27,7 +36,6 @@ export default function Clients() {
     data: clients,
     loading,
     execute: executeFetchClients,
-    updateData: updateClients,
   } = useAsyncState(fetchClients, { initialData: [], initialLoading: true });
 
   useEffect(() => {
@@ -84,12 +92,12 @@ export default function Clients() {
         await addClient(currentUser.uid, clientData);
         toast.success('Client added.');
       }
-      closeForm();
+      if (mountedRef.current) closeForm();
       await executeFetchClients().catch(() => undefined);
     } catch {
       toast.error('Could not save this client. Please try again.');
     } finally {
-      setSaving(false);
+      if (mountedRef.current) setSaving(false);
     }
   };
 
@@ -97,8 +105,8 @@ export default function Clients() {
     if (!currentUser?.uid || !deleteTarget) return;
     try {
       await deleteClient(deleteTarget.id);
-      updateClients((previous) => previous.filter((client) => client.id !== deleteTarget.id));
-      setDeleteTarget(null);
+      if (mountedRef.current) setDeleteTarget(null);
+      await executeFetchClients().catch(() => undefined);
       toast.success('Client deleted.');
     } catch {
       toast.error('Could not delete this client. Please try again.');
