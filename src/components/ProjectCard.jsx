@@ -1,25 +1,25 @@
-import React from 'react';
+import React, { memo } from 'react';
 
-export default function ProjectCard({ project }) {
-  const getProgressColor = (progress) => {
-    if (progress <= 30) return 'bg-red-500';
-    if (progress <= 70) return 'bg-yellow-500';
-    return 'bg-violet-500';
-  };
+const getProgressColor = (progress) => {
+  if (progress <= 30) return 'bg-red-500';
+  if (progress <= 70) return 'bg-yellow-500';
+  return 'bg-violet-500';
+};
 
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case 'Active':
-        return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
-      case 'Pending':
-        return 'bg-amber-500/10 text-amber-400 border-amber-500/20';
-      case 'Completed':
-        return 'bg-blue-500/10 text-blue-400 border-blue-500/20';
-      default:
-        return 'bg-slate-500/10 text-slate-400 border-slate-500/20';
-    }
-  };
+const getStatusBadge = (status) => {
+  switch (status) {
+    case 'Active':
+      return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+    case 'Pending':
+      return 'bg-amber-500/10 text-amber-400 border-amber-500/20';
+    case 'Completed':
+      return 'bg-blue-500/10 text-blue-400 border-blue-500/20';
+    default:
+      return 'bg-slate-500/10 text-slate-400 border-slate-500/20';
+  }
+};
 
+const ProjectCard = memo(function ProjectCard({ project }) {
   const progressColorClass = getProgressColor(project.progress);
   const statusBadgeClass = getStatusBadge(project.status);
 
@@ -64,4 +64,6 @@ export default function ProjectCard({ project }) {
 
     </div>
   );
-}
+});
+
+export default ProjectCard;

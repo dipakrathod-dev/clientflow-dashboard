@@ -1,19 +1,19 @@
-import React from 'react';
+import React, { memo } from 'react';
 
-export default function InvoiceCard({ invoice }) {
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case 'Paid':
-        return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
-      case 'Pending':
-        return 'bg-amber-500/10 text-amber-400 border-amber-500/20';
-      case 'Overdue':
-        return 'bg-red-500/10 text-red-400 border-red-500/20';
-      default:
-        return 'bg-slate-500/10 text-slate-400 border-slate-500/20';
-    }
-  };
+const getStatusBadge = (status) => {
+  switch (status) {
+    case 'Paid':
+      return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+    case 'Pending':
+      return 'bg-amber-500/10 text-amber-400 border-amber-500/20';
+    case 'Overdue':
+      return 'bg-red-500/10 text-red-400 border-red-500/20';
+    default:
+      return 'bg-slate-500/10 text-slate-400 border-slate-500/20';
+  }
+};
 
+const InvoiceCard = memo(function InvoiceCard({ invoice }) {
   const statusBadgeClass = getStatusBadge(invoice.status);
 
   return (
@@ -45,4 +45,6 @@ export default function InvoiceCard({ invoice }) {
 
     </div>
   );
-}
+});
+
+export default InvoiceCard;

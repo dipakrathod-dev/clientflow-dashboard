@@ -1,28 +1,39 @@
-import React, { useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { projectsData } from '../data/projects';
 import SearchBar from '../components/SearchBar';
 import FilterDropdown from '../components/FilterDropDown';
 import ProjectCard from '../components/ProjectCard';
 import EmptyState from '../components/EmptyState';
 
+const filterOptions = [
+  { label: 'All', value: 'All' },
+  { label: 'Active', value: 'Active' },
+  { label: 'Pending', value: 'Pending' },
+  { label: 'Completed', value: 'Completed' },
+];
+
 export default function Projects() {
-  const projectsList = projectsData;
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('All');
 
-  const filterOptions = [
-    { label: 'All', value: 'All' },
-    { label: 'Active', value: 'Active' },
-    { label: 'Pending', value: 'Pending' },
-    { label: 'Completed', value: 'Completed' }
-  ];
+  const handleSearchChange = useCallback((event) => {
+    setSearchQuery(event.target.value);
+  }, []);
 
-  const filteredProjects = projectsList.filter((project) => {
-    const matchesSearch = project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          project.client.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesFilter = selectedFilter === 'All' || project.status === selectedFilter;
-    return matchesSearch && matchesFilter;
-  });
+  const handleFilterChange = useCallback((event) => {
+    setSelectedFilter(event.target.value);
+  }, []);
+
+  const filteredProjects = useMemo(() => {
+    const normalizedSearch = searchQuery.toLowerCase();
+
+    return projectsData.filter((project) => {
+      const matchesSearch = project.name.toLowerCase().includes(normalizedSearch) ||
+                            project.client.toLowerCase().includes(normalizedSearch);
+      const matchesFilter = selectedFilter === 'All' || project.status === selectedFilter;
+      return matchesSearch && matchesFilter;
+    });
+  }, [searchQuery, selectedFilter]);
 
   return (
     <div className="space-y-6 p-6 animate-fade-in">
@@ -36,15 +47,15 @@ export default function Projects() {
 
       <div className="flex flex-col sm:flex-row items-center gap-4">
         <div className="w-full sm:flex-1">
-          <SearchBar 
-            value={searchQuery} 
-            onChange={(e) => setSearchQuery(e.target.value)} 
+          <SearchBar
+            value={searchQuery}
+            onChange={handleSearchChange}
           />
         </div>
         <FilterDropdown 
           options={filterOptions}
-          value={selectedFilter} 
-          onChange={(e) => setSelectedFilter(e.target.value)} 
+          value={selectedFilter}
+          onChange={handleFilterChange}
         />
       </div>
 

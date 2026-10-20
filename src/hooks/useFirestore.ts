@@ -5,7 +5,7 @@ import { useAuth } from './useAuth';
 import { useAsyncState } from './useAsyncState';
 
 export function useFirestore<T extends DocumentData = DocumentData>(collectionName: string) {
-  const { currentUser } = useAuth() as unknown as { currentUser: { uid?: string } | null };
+  const { currentUser } = useAuth();
   const ownerUid = currentUser?.uid;
 
   const fetchData = useCallback(async (): Promise<Array<T & { id: string }>> => {
