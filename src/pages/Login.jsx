@@ -1,37 +1,40 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { validateEmail, validatePassword } from '../utils/validation';
 
 export default function Login() {
   const navigate = useNavigate();
   const { login, loginWithGoogle, formatError } = useAuth();
   const [formData, setFormData] = useState({ email: '', password: '', rememberMe: false });
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
-    if (!formData.email.trim()) {
-      setError('Email address is required.');
-      return;
-    }
-    if (!formData.password) {
-      setError('Password is required.');
-      return;
-    }
-    if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters long.');
+    const nextFieldErrors = {
+      email: validateEmail(formData.email),
+      password: validatePassword(formData.password),
+    };
+    Object.keys(nextFieldErrors).forEach((field) => {
+      if (!nextFieldErrors[field]) delete nextFieldErrors[field];
+    });
+    if (Object.keys(nextFieldErrors).length) {
+      setFieldErrors(nextFieldErrors);
+      setError('Please correct the highlighted fields.');
       return;
     }
 
+    setFieldErrors({});
     setLoading(true);
     try {
       await login(formData.email.trim(), formData.password, formData.rememberMe);
       navigate('/', { replace: true });
     } catch (err) {
-      setError(formatError(err.code));
+      setError(formatError(err?.code));
     } finally {
       setLoading(false);
     }
@@ -44,7 +47,7 @@ export default function Login() {
       await loginWithGoogle();
       navigate('/', { replace: true });
     } catch (err) {
-      setError(formatError(err.code));
+      setError(formatError(err?.code));
     } finally {
       setLoading(false);
     }
@@ -70,7 +73,7 @@ export default function Login() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4" noValidate aria-busy={loading}>
           <div>
             <label className="block text-xs font-semibold text-slate-300 mb-1.5 uppercase tracking-wider">
               Email Address
@@ -78,10 +81,17 @@ export default function Login() {
             <input
               type="email"
               value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              onChange={(e) => {
+                setFormData({ ...formData, email: e.target.value });
+                setFieldErrors((current) => ({ ...current, email: '' }));
+                setError('');
+              }}
+              aria-invalid={Boolean(fieldErrors.email)}
+              aria-describedby={fieldErrors.email ? 'login-email-error' : undefined}
               placeholder="name@company.com"
-              className="w-full bg-slate-800/50 border border-slate-700/80 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-violet-500 transition-all duration-200"
+              className={`w-full bg-slate-800/50 border rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-violet-500 transition-all duration-200 ${fieldErrors.email ? 'border-red-500' : 'border-slate-700/80'}`}
             />
+            {fieldErrors.email && <p id="login-email-error" role="alert" className="mt-1 text-xs text-red-400">{fieldErrors.email}</p>}
           </div>
 
           <div>
@@ -91,10 +101,17 @@ export default function Login() {
             <input
               type="password"
               value={formData.password}
-              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              onChange={(e) => {
+                setFormData({ ...formData, password: e.target.value });
+                setFieldErrors((current) => ({ ...current, password: '' }));
+                setError('');
+              }}
+              aria-invalid={Boolean(fieldErrors.password)}
+              aria-describedby={fieldErrors.password ? 'login-password-error' : undefined}
               placeholder="••••••••"
-              className="w-full bg-slate-800/50 border border-slate-700/80 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-violet-500 transition-all duration-200"
+              className={`w-full bg-slate-800/50 border rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-violet-500 transition-all duration-200 ${fieldErrors.password ? 'border-red-500' : 'border-slate-700/80'}`}
             />
+            {fieldErrors.password && <p id="login-password-error" role="alert" className="mt-1 text-xs text-red-400">{fieldErrors.password}</p>}
           </div>
 
           <div className="flex items-center justify-between text-xs pt-1">

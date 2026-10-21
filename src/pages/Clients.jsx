@@ -7,6 +7,7 @@ import DeleteModal from '../components/DeleteModal';
 import EmptyState from '../components/EmptyState';
 import SearchBar from '../components/SearchBar';
 import { addClient, deleteClient, getClients, updateClient } from '../utils/clientService';
+import { validateClientForm } from '../utils/validation';
 
 const emptyForm = { name: '', email: '', company: '', budget: '', status: 'Active' };
 
@@ -18,6 +19,9 @@ export default function Clients() {
   const [editingClient, setEditingClient] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [formData, setFormData] = useState(emptyForm);
+  const [errors, setErrors] = useState({});
+  const [formError, setFormError] = useState('');
+  const [deleting, setDeleting] = useState(false);
   const mountedRef = useRef(false);
 
   useEffect(() => {
@@ -57,6 +61,8 @@ export default function Clients() {
   const openAddForm = useCallback(() => {
     setEditingClient(null);
     setFormData(emptyForm);
+    setErrors({});
+    setFormError('');
     setFormOpen(true);
   }, []);
 
@@ -69,6 +75,8 @@ export default function Clients() {
       budget: client.budget?.toString() || '',
       status: client.status || 'Active',
     });
+    setErrors({});
+    setFormError('');
     setFormOpen(true);
   }, []);
 
@@ -76,14 +84,41 @@ export default function Clients() {
     setFormOpen(false);
     setEditingClient(null);
     setFormData(emptyForm);
+    setErrors({});
+    setFormError('');
+  }, []);
+
+  const handleFieldChange = useCallback((field) => (event) => {
+    const value = event.target.value;
+    setFormData((current) => ({ ...current, [field]: value }));
+    setErrors((current) => {
+      if (!current[field]) return current;
+      const next = { ...current };
+      delete next[field];
+      return next;
+    });
+    setFormError('');
   }, []);
 
   const handleSubmit = useCallback(async (event) => {
     event.preventDefault();
     if (!currentUser?.uid) return;
 
+    const validationErrors = validateClientForm(formData);
+    if (Object.keys(validationErrors).length) {
+      setErrors(validationErrors);
+      setFormError('Please correct the highlighted fields.');
+      return;
+    }
+
     setSaving(true);
-    const clientData = { ...formData, budget: Number(formData.budget) };
+    const clientData = {
+      ...formData,
+      name: formData.name.trim(),
+      email: formData.email.trim(),
+      company: formData.company.trim(),
+      budget: Number(formData.budget),
+    };
     try {
       if (editingClient) {
         await updateClient(editingClient.id, clientData);
@@ -95,6 +130,7 @@ export default function Clients() {
       if (mountedRef.current) closeForm();
       await executeFetchClients().catch(() => undefined);
     } catch {
+      if (mountedRef.current) setFormError('Could not save this client. Please try again.');
       toast.error('Could not save this client. Please try again.');
     } finally {
       if (mountedRef.current) setSaving(false);
@@ -102,7 +138,8 @@ export default function Clients() {
   }, [currentUser?.uid, editingClient, executeFetchClients, formData, closeForm]);
 
   const handleDelete = useCallback(async () => {
-    if (!currentUser?.uid || !deleteTarget) return;
+    if (!currentUser?.uid || !deleteTarget || deleting) return;
+    setDeleting(true);
     try {
       await deleteClient(deleteTarget.id);
       if (mountedRef.current) setDeleteTarget(null);
@@ -110,8 +147,10 @@ export default function Clients() {
       toast.success('Client deleted.');
     } catch {
       toast.error('Could not delete this client. Please try again.');
+    } finally {
+      if (mountedRef.current) setDeleting(false);
     }
-  }, [currentUser?.uid, deleteTarget, executeFetchClients]);
+  }, [currentUser?.uid, deleteTarget, deleting, executeFetchClients]);
 
   const handleDeleteRequest = useCallback((clientId) => {
     setDeleteTarget(clients.find((client) => client.id === clientId) || null);
@@ -159,32 +198,38 @@ export default function Clients() {
 
       {formOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" role="presentation">
-          <form onSubmit={handleSubmit} className="w-full max-w-lg space-y-4 rounded-2xl border border-slate-700 bg-slate-900 p-6 shadow-2xl" aria-labelledby="client-form-title">
+          <form onSubmit={handleSubmit} className="w-full max-w-lg space-y-4 rounded-2xl border border-slate-700 bg-slate-900 p-6 shadow-2xl" aria-labelledby="client-form-title" aria-busy={saving} noValidate>
             <div className="flex items-center justify-between">
               <h2 id="client-form-title" className="text-xl font-semibold">{editingClient ? 'Edit Client' : 'Add Client'}</h2>
-              <button type="button" onClick={closeForm} className="text-slate-400 hover:text-white" aria-label="Close">✕</button>
+              <button type="button" onClick={closeForm} disabled={saving} className="text-slate-400 hover:text-white disabled:cursor-not-allowed disabled:opacity-50" aria-label="Close">✕</button>
             </div>
+            {formError && <p role="alert" className="rounded-lg border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-300">{formError}</p>}
             <label className="block text-sm text-slate-300">Name
-              <input required maxLength={100} value={formData.name} onChange={(event) => setFormData({ ...formData, name: event.target.value })} className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-white" />
+              <input id="client-name" required maxLength={100} value={formData.name} onChange={handleFieldChange('name')} aria-invalid={Boolean(errors.name)} aria-describedby={errors.name ? 'client-name-error' : undefined} className={`mt-1 w-full rounded-lg border bg-slate-800 px-3 py-2 text-white ${errors.name ? 'border-red-500' : 'border-slate-700'}`} />
+              {errors.name && <p id="client-name-error" role="alert" className="mt-1 text-xs text-red-400">{errors.name}</p>}
             </label>
             <label className="block text-sm text-slate-300">Email
-              <input required type="email" maxLength={254} value={formData.email} onChange={(event) => setFormData({ ...formData, email: event.target.value })} className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-white" />
+              <input id="client-email" required type="email" maxLength={254} value={formData.email} onChange={handleFieldChange('email')} aria-invalid={Boolean(errors.email)} aria-describedby={errors.email ? 'client-email-error' : undefined} className={`mt-1 w-full rounded-lg border bg-slate-800 px-3 py-2 text-white ${errors.email ? 'border-red-500' : 'border-slate-700'}`} />
+              {errors.email && <p id="client-email-error" role="alert" className="mt-1 text-xs text-red-400">{errors.email}</p>}
             </label>
             <label className="block text-sm text-slate-300">Company
-              <input required maxLength={120} value={formData.company} onChange={(event) => setFormData({ ...formData, company: event.target.value })} className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-white" />
+              <input id="client-company" required maxLength={120} value={formData.company} onChange={handleFieldChange('company')} aria-invalid={Boolean(errors.company)} aria-describedby={errors.company ? 'client-company-error' : undefined} className={`mt-1 w-full rounded-lg border bg-slate-800 px-3 py-2 text-white ${errors.company ? 'border-red-500' : 'border-slate-700'}`} />
+              {errors.company && <p id="client-company-error" role="alert" className="mt-1 text-xs text-red-400">{errors.company}</p>}
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <label className="block text-sm text-slate-300">Budget (₹)
-                <input required type="number" min="0" step="1" value={formData.budget} onChange={(event) => setFormData({ ...formData, budget: event.target.value })} className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-white" />
+                <input id="client-budget" required type="number" min="0" step="1" value={formData.budget} onChange={handleFieldChange('budget')} aria-invalid={Boolean(errors.budget)} aria-describedby={errors.budget ? 'client-budget-error' : undefined} className={`mt-1 w-full rounded-lg border bg-slate-800 px-3 py-2 text-white ${errors.budget ? 'border-red-500' : 'border-slate-700'}`} />
+                {errors.budget && <p id="client-budget-error" role="alert" className="mt-1 text-xs text-red-400">{errors.budget}</p>}
               </label>
               <label className="block text-sm text-slate-300">Status
-                <select value={formData.status} onChange={(event) => setFormData({ ...formData, status: event.target.value })} className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-white">
+                <select id="client-status" value={formData.status} onChange={handleFieldChange('status')} aria-invalid={Boolean(errors.status)} aria-describedby={errors.status ? 'client-status-error' : undefined} className={`mt-1 w-full rounded-lg border bg-slate-800 px-3 py-2 text-white ${errors.status ? 'border-red-500' : 'border-slate-700'}`}>
                   <option>Active</option><option>Pending</option><option>Completed</option>
                 </select>
+                {errors.status && <p id="client-status-error" role="alert" className="mt-1 text-xs text-red-400">{errors.status}</p>}
               </label>
             </div>
             <div className="flex justify-end gap-3 pt-2">
-              <button type="button" onClick={closeForm} className="rounded-lg px-4 py-2 text-sm text-slate-300 hover:bg-slate-800">Cancel</button>
+              <button type="button" onClick={closeForm} disabled={saving} className="rounded-lg px-4 py-2 text-sm text-slate-300 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50">Cancel</button>
               <button type="submit" disabled={saving} className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-500 disabled:opacity-60">
                 {saving ? 'Saving...' : editingClient ? 'Save Changes' : 'Add Client'}
               </button>
@@ -198,6 +243,7 @@ export default function Clients() {
         title={deleteTarget?.name || 'client'}
         onClose={() => setDeleteTarget(null)}
         onConfirm={handleDelete}
+        isConfirming={deleting}
       />
     </div>
   );

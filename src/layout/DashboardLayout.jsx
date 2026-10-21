@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Sidebar from '../components/AppSidebar';  
 import TopHeader from '../components/TopHeader';
 import SearchModal from '../components/SearchModal';
@@ -8,6 +8,23 @@ export default function DashboardLayout({ children }) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isMobileOpen) return undefined;
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') setIsMobileOpen(false);
+    };
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isMobileOpen]);
 
   return (
     <div className={isDarkMode ? 'dark' : ''}>
@@ -30,7 +47,7 @@ export default function DashboardLayout({ children }) {
             onOpenSearch={() => setIsSearchOpen(true)}
           />
 
-          <main className="flex-1 p-4 md:p-6 lg:p-8">
+          <main id="main-content" tabIndex="-1" className="flex-1 p-4 outline-none md:p-6 lg:p-8">
             {children}
           </main>
         </div>

@@ -7,12 +7,12 @@ const defaultOptions = [
   { label: 'Completed', value: 'Completed' },
 ];
 
-const FilterDropdown = memo(({ options = defaultOptions, value = 'All', onChange }) => {
+const FilterDropdown = memo(({ options = defaultOptions, value = 'All', onChange, label = 'Filter results' }) => {
   return (
     <select
       value={value}
       onChange={onChange}
-      aria-label="Filter results"
+      aria-label={label}
       className="w-full sm:w-auto px-4 py-2 bg-slate-900 text-slate-200 border border-slate-800 rounded-lg text-sm focus:outline-none focus:border-purple-500 cursor-pointer"
     >
       {options.map((option) => (

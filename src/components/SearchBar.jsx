@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 
-const SearchBar = memo(function SearchBar({ value, onChange }) {
+const SearchBar = memo(function SearchBar({ value, onChange, id = 'client-search' }) {
   return (
     <div className="relative w-full">
       {/* Point 6: Magnifying Glass Icon */}
@@ -11,7 +11,10 @@ const SearchBar = memo(function SearchBar({ value, onChange }) {
       </div>
 
       <input
+        id={id}
+        name="search"
         type="text"
+        aria-label="Search clients and projects"
         value={value}
         onChange={onChange}
         placeholder="Search clients, projects..."
