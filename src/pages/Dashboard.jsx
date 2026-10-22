@@ -1,9 +1,8 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { Link } from 'react-router-dom';
 import { db } from '../firebase/firebase';
 import { useAuth } from '../hooks/useAuth';
-import { useAsyncState } from '../hooks/useAsyncState';
 import { RevenueChart, ClientGrowthChart } from '../components/AnalyticsChart';
 import toast from 'react-hot-toast';
 
@@ -11,56 +10,57 @@ const emptyStats = { clients: 0, completedProjects: 0, pendingProjects: 0, proje
 
 export default function Dashboard() {
   const { currentUser } = useAuth();
+  const [stats, setStats] = useState(emptyStats);
+  const [recentActivity, setRecentActivity] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const fetchDashboardData = useCallback(async () => {
     if (!currentUser?.uid) {
-      return { stats: emptyStats, recentActivity: [] };
+      setStats(emptyStats);
+      setRecentActivity([]);
+      setLoading(false);
+      return;
     }
 
-    const clientsQuery = query(collection(db, 'clients'), where('ownerUid', '==', currentUser.uid));
-    const projectsQuery = query(collection(db, 'projects'), where('ownerUid', '==', currentUser.uid));
-    const [clientSnap, projectSnap] = await Promise.all([getDocs(clientsQuery), getDocs(projectsQuery)]);
+    setLoading(true);
+    try {
+      const clientsQuery = query(collection(db, 'clients'), where('ownerUid', '==', currentUser.uid));
+      const projectsQuery = query(collection(db, 'projects'), where('ownerUid', '==', currentUser.uid));
+      const [clientSnap, projectSnap] = await Promise.all([getDocs(clientsQuery), getDocs(projectsQuery)]);
 
-    let completedProjects = 0;
-    let pendingProjects = 0;
-    let projectValue = 0;
-    projectSnap.forEach((projectDoc) => {
-      const project = projectDoc.data();
-      if (project.status === 'Completed') completedProjects += 1;
-      else pendingProjects += 1;
-      projectValue += Number(project.amount ?? project.budget ?? 0);
-    });
+      let completedProjects = 0;
+      let pendingProjects = 0;
+      let projectValue = 0;
+      projectSnap.forEach((projectDoc) => {
+        const project = projectDoc.data();
+        if (project.status === 'Completed') completedProjects += 1;
+        else pendingProjects += 1;
+        projectValue += Number(project.amount ?? project.budget ?? 0);
+      });
 
-    return {
-      stats: {
+      setStats({
         clients: clientSnap.size,
         completedProjects,
         pendingProjects,
         projectValue,
-      },
-      recentActivity: clientSnap.docs
-        .map((clientDoc) => ({ id: clientDoc.id, ...clientDoc.data() }))
-        .sort((a, b) => (b.createdAt?.toMillis?.() ?? 0) - (a.createdAt?.toMillis?.() ?? 0))
-        .slice(0, 5),
-    };
+      });
+
+      setRecentActivity(
+        clientSnap.docs
+          .map((clientDoc) => ({ id: clientDoc.id, ...clientDoc.data() }))
+          .sort((a, b) => (b.createdAt?.toMillis?.() ?? 0) - (a.createdAt?.toMillis?.() ?? 0))
+          .slice(0, 5)
+      );
+    } catch {
+      toast.error('Could not load dashboard data. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   }, [currentUser?.uid]);
 
-  const {
-    data: dashboardData,
-    loading,
-    execute: executeFetchDashboardData,
-  } = useAsyncState(fetchDashboardData, {
-    initialData: { stats: emptyStats, recentActivity: [] },
-    initialLoading: true,
-  });
-
-  const { stats, recentActivity } = dashboardData;
-
   useEffect(() => {
-    executeFetchDashboardData().catch(() => {
-      toast.error('Could not load dashboard data. Please try again.');
-    });
-  }, [executeFetchDashboardData]);
+    fetchDashboardData();
+  }, [fetchDashboardData]);
 
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Good Morning' : hour < 18 ? 'Good Afternoon' : 'Good Evening';
