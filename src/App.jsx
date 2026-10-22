@@ -1,7 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
-import { AuthProvider } from './context/AuthProvider';
+import { AuthProvider } from './context/AuthContext.jsx';
 import { useAuth } from './hooks/useAuth';
 import DashboardLayout from './layout/DashboardLayout';
 const Dashboard = lazy(() => import('./pages/Dashboard'));

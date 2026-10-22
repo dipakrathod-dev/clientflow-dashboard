@@ -1,11 +1,10 @@
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect } from 'react';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { Link } from 'react-router-dom';
 import { db } from '../firebase/firebase';
 import { useAuth } from '../hooks/useAuth';
 import { useAsyncState } from '../hooks/useAsyncState';
 import { RevenueChart, ClientGrowthChart } from '../components/AnalyticsChart';
-import GitHubRepositoryCard from '../components/GitHubRepositoryCard';
 import toast from 'react-hot-toast';
 
 const emptyStats = { clients: 0, completedProjects: 0, pendingProjects: 0, projectValue: 0 };
@@ -67,16 +66,16 @@ export default function Dashboard() {
   const greeting = hour < 12 ? 'Good Morning' : hour < 18 ? 'Good Afternoon' : 'Good Evening';
   const userName = currentUser?.displayName || currentUser?.email?.split('@')[0] || 'User';
 
-  const statCards = useMemo(() => [
+  if (loading) {
+    return <div className="p-8 text-sm text-slate-400" role="status">Loading your dashboard...</div>;
+  }
+
+  const statCards = [
     { label: 'Total Clients', value: stats.clients, caption: 'Your records', color: 'text-white' },
     { label: 'Project Value', value: `₹${stats.projectValue.toLocaleString('en-IN')}`, caption: 'From saved projects', color: 'text-violet-400' },
     { label: 'Completed Projects', value: stats.completedProjects, caption: 'Your records', color: 'text-emerald-400' },
     { label: 'Pending Projects', value: stats.pendingProjects, caption: 'Your records', color: 'text-amber-400' },
-  ], [stats]);
-
-  if (loading) {
-    return <div className="p-8 text-sm text-slate-400" role="status">Loading your dashboard...</div>;
-  }
+  ];
 
   return (
     <div className="p-4 md:p-6 lg:p-8 space-y-8 bg-slate-950 text-white min-h-screen">
@@ -102,8 +101,6 @@ export default function Dashboard() {
           </div>
         ))}
       </div>
-
-      <GitHubRepositoryCard />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <RevenueChart />

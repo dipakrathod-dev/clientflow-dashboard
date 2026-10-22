@@ -54,13 +54,13 @@ export default function Clients() {
     );
   }, [clients, searchQuery]);
 
-  const openAddForm = useCallback(() => {
+  const openAddForm = () => {
     setEditingClient(null);
     setFormData(emptyForm);
     setFormOpen(true);
-  }, []);
+  };
 
-  const openEditForm = useCallback((client) => {
+  const openEditForm = (client) => {
     setEditingClient(client);
     setFormData({
       name: client.name || '',
@@ -70,15 +70,15 @@ export default function Clients() {
       status: client.status || 'Active',
     });
     setFormOpen(true);
-  }, []);
+  };
 
-  const closeForm = useCallback(() => {
+  const closeForm = () => {
     setFormOpen(false);
     setEditingClient(null);
     setFormData(emptyForm);
-  }, []);
+  };
 
-  const handleSubmit = useCallback(async (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     if (!currentUser?.uid) return;
 
@@ -99,9 +99,9 @@ export default function Clients() {
     } finally {
       if (mountedRef.current) setSaving(false);
     }
-  }, [currentUser?.uid, editingClient, executeFetchClients, formData, closeForm]);
+  };
 
-  const handleDelete = useCallback(async () => {
+  const handleDelete = async () => {
     if (!currentUser?.uid || !deleteTarget) return;
     try {
       await deleteClient(deleteTarget.id);
@@ -111,15 +111,7 @@ export default function Clients() {
     } catch {
       toast.error('Could not delete this client. Please try again.');
     }
-  }, [currentUser?.uid, deleteTarget, executeFetchClients]);
-
-  const handleDeleteRequest = useCallback((clientId) => {
-    setDeleteTarget(clients.find((client) => client.id === clientId) || null);
-  }, [clients]);
-
-  const handleSearchChange = useCallback((event) => {
-    setSearchQuery(event.target.value);
-  }, []);
+  };
 
   return (
     <div className="space-y-6 p-4 sm:p-6 animate-fade-in text-white">
@@ -137,7 +129,7 @@ export default function Clients() {
         </button>
       </header>
 
-      <SearchBar value={searchQuery} onChange={handleSearchChange} placeholder="Search clients..." />
+      <SearchBar value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="Search clients..." />
 
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5" aria-label="Loading clients">
@@ -146,7 +138,7 @@ export default function Clients() {
       ) : filteredClients.length ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
           {filteredClients.map((client) => (
-            <ClientCard key={client.id} client={client} onEdit={openEditForm} onDelete={handleDeleteRequest} />
+            <ClientCard key={client.id} client={client} onEdit={openEditForm} onDelete={() => setDeleteTarget(client)} />
           ))}
         </div>
       ) : (

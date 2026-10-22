@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React from 'react';
 
 const defaultOptions = [
   { label: 'All', value: 'All' },
@@ -7,7 +7,7 @@ const defaultOptions = [
   { label: 'Completed', value: 'Completed' },
 ];
 
-const FilterDropdown = memo(({ options = defaultOptions, value = 'All', onChange }) => {
+const FilterDropdown = ({ options = defaultOptions, value = 'All', onChange }) => {
   return (
     <select
       value={value}
@@ -22,6 +22,6 @@ const FilterDropdown = memo(({ options = defaultOptions, value = 'All', onChange
       ))}
     </select>
   );
-});
+};
 
 export default FilterDropdown;

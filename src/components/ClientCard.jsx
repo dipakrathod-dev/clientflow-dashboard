@@ -1,6 +1,6 @@
-import React, { memo } from 'react';
+import React from 'react';
 
-const ClientCard = memo(function ClientCard({ client, onEdit, onDelete }) {
+export default function ClientCard({ client, onEdit, onDelete }) {
   return (
     <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-md 
                     transition-all duration-300 transform hover:-translate-y-1 
@@ -26,6 +26,4 @@ const ClientCard = memo(function ClientCard({ client, onEdit, onDelete }) {
       </div>
     </div>
   );
-});
-
-export default ClientCard;
+}

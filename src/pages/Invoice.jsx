@@ -1,52 +1,36 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { invoicesData } from '../data/invoices';
 import SearchBar from '../components/SearchBar';
 import FilterDropdown from '../components/FilterDropDown';
 import InvoiceCard from '../components/InvoiceCard';
 import EmptyState from '../components/EmptyState';
 
-const filterOptions = [
-  { label: 'All', value: 'All' },
-  { label: 'Paid', value: 'Paid' },
-  { label: 'Pending', value: 'Pending' },
-  { label: 'Overdue', value: 'Overdue' },
-];
-
 export default function Invoices() {
+  const invoicesList = invoicesData;
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('All');
 
-  const handleSearchChange = useCallback((event) => {
-    setSearchQuery(event.target.value);
-  }, []);
+  const filterOptions = [
+    { label: 'All', value: 'All' },
+    { label: 'Paid', value: 'Paid' },
+    { label: 'Pending', value: 'Pending' },
+    { label: 'Overdue', value: 'Overdue' }
+  ];
 
-  const handleFilterChange = useCallback((event) => {
-    setSelectedFilter(event.target.value);
-  }, []);
+  const totalInvoices = invoicesList.length;
+  const paidCount = invoicesList.filter(inv => inv.status === 'Paid').length;
+  const pendingCount = invoicesList.filter(inv => inv.status === 'Pending').length;
+  const totalRevenue = invoicesList
+    .filter(inv => inv.status === 'Paid')
+    .reduce((sum, inv) => sum + inv.amount, 0);
 
-  const { totalInvoices, paidCount, pendingCount, totalRevenue } = useMemo(() => {
-    return invoicesData.reduce((summary, invoice) => {
-      summary.totalInvoices += 1;
-      if (invoice.status === 'Paid') {
-        summary.paidCount += 1;
-        summary.totalRevenue += invoice.amount;
-      }
-      if (invoice.status === 'Pending') summary.pendingCount += 1;
-      return summary;
-    }, { totalInvoices: 0, paidCount: 0, pendingCount: 0, totalRevenue: 0 });
-  }, []);
-
-  const filteredInvoices = useMemo(() => {
-    const normalizedSearch = searchQuery.toLowerCase();
-
-    return invoicesData.filter((invoice) => {
-      const matchesSearch = invoice.id.toLowerCase().includes(normalizedSearch) ||
-                            invoice.client.toLowerCase().includes(normalizedSearch) ||
-                            invoice.project.toLowerCase().includes(normalizedSearch);
-      const matchesFilter = selectedFilter === 'All' || invoice.status === selectedFilter;
-      return matchesSearch && matchesFilter;
-    });
-  }, [searchQuery, selectedFilter]);
+  const filteredInvoices = invoicesList.filter((invoice) => {
+    const matchesSearch = invoice.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          invoice.client.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          invoice.project.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesFilter = selectedFilter === 'All' || invoice.status === selectedFilter;
+    return matchesSearch && matchesFilter;
+  });
 
   return (
     <div className="space-y-6 p-6 animate-fade-in">
@@ -78,16 +62,16 @@ export default function Invoices() {
 
       <div className="flex flex-col sm:flex-row items-center gap-4">
         <div className="w-full sm:flex-1">
-          <SearchBar
-            value={searchQuery}
-            onChange={handleSearchChange}
+          <SearchBar 
+            value={searchQuery} 
+            onChange={(e) => setSearchQuery(e.target.value)} 
             placeholder="Search invoices..."
           />
         </div>
         <FilterDropdown 
           options={filterOptions}
-          value={selectedFilter}
-          onChange={handleFilterChange}
+          value={selectedFilter} 
+          onChange={(e) => setSelectedFilter(e.target.value)} 
         />
       </div>
 

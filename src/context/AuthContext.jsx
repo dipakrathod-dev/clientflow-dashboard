@@ -1,4 +1,5 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useState } from 'react';
+import { AuthContext } from './authContext';
 import {
   browserLocalPersistence,
   browserSessionPersistence,
@@ -11,21 +12,14 @@ import {
   signInWithPopup,
   signOut,
   updateProfile,
-  type User,
-  type UserCredential,
 } from 'firebase/auth';
 import { auth } from '../firebase/firebase';
-import { AuthContext } from './auth-context';
 
-type AuthProviderProps = {
-  children: ReactNode;
-};
-
-export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+export const AuthProvider = ({ children }) => {
+  const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const formatError = (errorCode?: string): string => {
+  const formatError = (errorCode) => {
     switch (errorCode) {
       case 'auth/invalid-credential':
       case 'auth/wrong-password':
@@ -50,7 +44,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  const register = async (email: string, password: string, name?: string): Promise<UserCredential> => {
+  const register = async (email, password, name) => {
     const res = await createUserWithEmailAndPassword(auth, email, password);
     if (name) {
       await updateProfile(res.user, { displayName: name });
@@ -58,19 +52,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     return res;
   };
 
-  const login = async (email: string, password: string, rememberMe = true): Promise<UserCredential> => {
+  const login = async (email, password, rememberMe = true) => {
     await setPersistence(auth, rememberMe ? browserLocalPersistence : browserSessionPersistence);
     return signInWithEmailAndPassword(auth, email, password);
   };
 
-  const loginWithGoogle = async (): Promise<UserCredential> => {
+  const loginWithGoogle = async () => {
     await setPersistence(auth, browserLocalPersistence);
     return signInWithPopup(auth, new GoogleAuthProvider());
   };
 
-  const resetPassword = (email: string): Promise<void> => sendPasswordResetEmail(auth, email);
+  const resetPassword = (email) => sendPasswordResetEmail(auth, email);
 
-  const updateDisplayName = async (name: string): Promise<void> => {
+  const updateDisplayName = async (name) => {
     if (!auth.currentUser) {
       throw new Error('No signed-in user.');
     }
@@ -79,7 +73,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setCurrentUser({ ...auth.currentUser });
   };
 
-  const logout = (): Promise<void> => signOut(auth);
+  const logout = () => {
+    return signOut(auth);
+  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {

@@ -1,6 +1,6 @@
-import React, { memo } from 'react';
+import React from 'react';
 
-const EmptyState = memo(function EmptyState({
+export default function EmptyState({
   title = 'No Clients Yet',
   message = "You haven't added any clients yet.",
   actionLabel = '+ Add First Client',
@@ -24,6 +24,4 @@ const EmptyState = memo(function EmptyState({
       )}
     </div>
   );
-});
-
-export default EmptyState;
+}

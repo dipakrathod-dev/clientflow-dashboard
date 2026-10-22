@@ -1,6 +1,6 @@
-import React, { memo } from 'react';
+import React from 'react';
 
-const SearchBar = memo(function SearchBar({ value, onChange }) {
+export default function SearchBar({ value, onChange }) {
   return (
     <div className="relative w-full">
       {/* Point 6: Magnifying Glass Icon */}
@@ -20,6 +20,4 @@ const SearchBar = memo(function SearchBar({ value, onChange }) {
       />
     </div>
   );
-});
-
-export default SearchBar;
+}

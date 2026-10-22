@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React from 'react';
 import {
   ResponsiveContainer,
   AreaChart,
@@ -29,7 +29,7 @@ const clientGrowthData = [
   { month: 'Jun', clients: 45 },
 ];
 
-export const RevenueChart = memo(function RevenueChart() {
+export function RevenueChart() {
   return (
     <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
       <h3 className="text-lg font-semibold text-white mb-1">Revenue Trends</h3>
@@ -53,9 +53,9 @@ export const RevenueChart = memo(function RevenueChart() {
       </div>
     </div>
   );
-});
+}
 
-export const ClientGrowthChart = memo(function ClientGrowthChart() {
+export function ClientGrowthChart() {
   return (
     <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
       <h3 className="text-lg font-semibold text-white mb-1">Client Growth</h3>
@@ -73,4 +73,4 @@ export const ClientGrowthChart = memo(function ClientGrowthChart() {
       </div>
     </div>
   );
-});
+}
