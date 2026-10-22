@@ -16,12 +16,11 @@ export default function SideBar({ isCollapsed, setIsCollapsed, isMobileOpen, set
         <button
           type="button"
           aria-label="Close navigation"
-          aria-controls="primary-navigation"
           onClick={() => setIsMobileOpen(false)}
           className="fixed inset-0 z-30 bg-black/60 lg:hidden"
         />
       )}
-      <aside aria-label="Application navigation" className={`fixed inset-y-0 left-0 z-40 flex min-h-screen flex-col justify-between border-r border-slate-800 bg-slate-900 p-4 transition-all duration-300 ${
+      <aside className={`fixed inset-y-0 left-0 z-40 flex min-h-screen flex-col justify-between border-r border-slate-800 bg-slate-900 p-4 transition-all duration-300 ${
         isCollapsed ? 'lg:w-20' : 'lg:w-64'
       } ${isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
       <div>
@@ -31,22 +30,19 @@ export default function SideBar({ isCollapsed, setIsCollapsed, isMobileOpen, set
           <button
             type="button"
             aria-label={isCollapsed ? 'Expand navigation' : 'Collapse navigation'}
-            aria-expanded={!isCollapsed}
-            aria-controls="primary-navigation"
             onClick={() => setIsCollapsed(!isCollapsed)}
             className="ml-auto hidden rounded-lg p-1 text-slate-400 hover:bg-slate-800 hover:text-white lg:block"
           >
             {isCollapsed ? '→' : '←'}
           </button>
         </div>
-        <nav id="primary-navigation" aria-label="Primary" className="space-y-1">
+        <nav className="space-y-1">
           {navItems.map((item) => (
             <NavLink
               key={item.path}
               to={item.path}
               onClick={() => setIsMobileOpen(false)}
               title={isCollapsed ? item.name : undefined}
-              aria-label={isCollapsed ? item.name : undefined}
               className={({ isActive }) => `
                 relative flex items-center rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200
                 ${isCollapsed ? 'lg:justify-center lg:px-2' : ''}

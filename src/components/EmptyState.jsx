@@ -8,7 +8,7 @@ const EmptyState = memo(function EmptyState({
 }) {
   return (
     <div className="col-span-full py-12 px-6 text-center bg-slate-900/40 border border-dashed border-slate-800 rounded-2xl flex flex-col items-center justify-center">
-      <div aria-hidden="true" className="p-3 bg-slate-800/60 rounded-full text-slate-400 mb-3">
+      <div className="p-3 bg-slate-800/60 rounded-full text-slate-400 mb-3">
         📂
       </div>
       <h3 className="text-lg font-semibold text-white">{title}</h3>

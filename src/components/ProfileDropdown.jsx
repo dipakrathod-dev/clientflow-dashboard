@@ -22,8 +22,8 @@ export default function ProfileDropdown({ isOpen, onClose }) {
 
   return (
     <>
-      <button type="button" aria-label="Close account menu" className="fixed inset-0 z-30 cursor-default" onClick={onClose} />
-      <div id="profile-panel" role="menu" aria-label="Account menu" className="absolute right-0 z-40 mt-3 w-56 space-y-1 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-2xl animate-in fade-in duration-150 dark:border-slate-800 dark:bg-slate-900">
+      <div className="fixed inset-0 z-30" onClick={onClose} />
+      <div className="absolute right-0 mt-3 w-56 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl z-40 p-1.5 space-y-1 animate-in fade-in duration-150">
         <div className="p-2.5 border-b border-slate-100 dark:border-slate-800">
           <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">{displayName}</p>
           <p className="text-xs text-slate-400">{currentUser?.email}</p>
@@ -31,7 +31,6 @@ export default function ProfileDropdown({ isOpen, onClose }) {
 
         <Link
           to="/profile"
-          role="menuitem"
           onClick={onClose}
           className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
         >
@@ -40,7 +39,6 @@ export default function ProfileDropdown({ isOpen, onClose }) {
 
         <Link
           to="/settings"
-          role="menuitem"
           onClick={onClose}
           className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
         >
@@ -48,8 +46,6 @@ export default function ProfileDropdown({ isOpen, onClose }) {
         </Link>
 
         <button
-          type="button"
-          role="menuitem"
           onClick={handleLogout}
           className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition text-left"
         >

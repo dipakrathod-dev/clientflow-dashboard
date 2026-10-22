@@ -9,7 +9,7 @@ const ClientCard = memo(function ClientCard({ client, onEdit, onDelete }) {
       <div>
         <div className="flex justify-between items-start mb-2">
           <h3 className="text-lg font-semibold text-white">{client.name}</h3>
-           <span role="status" className="px-2.5 py-0.5 text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full">
+          <span className="px-2.5 py-0.5 text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full">
             {client.status || 'Active'}
           </span>
         </div>

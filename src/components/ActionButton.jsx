@@ -1,6 +1,6 @@
 import React from 'react';
 
-const ActionButton = ({ text, icon, variant = 'primary', onClick, type = 'button', disabled = false }) => {
+const ActionButton = ({ text, icon, variant = 'primary', onClick }) => {
   const baseStyles = "inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 cursor-pointer";
 
   const variantStyles = {
@@ -11,12 +11,10 @@ const ActionButton = ({ text, icon, variant = 'primary', onClick, type = 'button
 
   return (
     <button 
-      type={type}
       onClick={onClick} 
-      disabled={disabled}
       className={`${baseStyles} ${variantStyles[variant] || variantStyles.primary}`}
     >
-      {icon && <span aria-hidden="true" className="text-base font-semibold">{icon}</span>}
+      {icon && <span className="text-base font-semibold">{icon}</span>}
       {text}
     </button>
   );

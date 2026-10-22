@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { validateEmail } from '../utils/validation';
 
 export default function ForgotPassword() {
   const { resetPassword, formatError } = useAuth();
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
-  const [fieldError, setFieldError] = useState('');
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -15,20 +13,17 @@ export default function ForgotPassword() {
     e.preventDefault();
     setError('');
 
-    const validationError = validateEmail(email);
-    if (validationError) {
-      setFieldError(validationError);
-      setError('Please correct the highlighted field.');
+    if (!email.trim()) {
+      setError('Please enter your email address.');
       return;
     }
 
-    setFieldError('');
     setLoading(true);
     try {
       await resetPassword(email.trim());
       setSuccess(true);
     } catch (err) {
-      setError(formatError(err?.code));
+      setError(formatError(err.code));
     } finally {
       setLoading(false);
     }
@@ -61,21 +56,18 @@ export default function ForgotPassword() {
             <p className="text-xs text-slate-400">Please check your inbox for instructions to reset your password.</p>
           </div>
         ) : (
-           <form onSubmit={handleSubmit} className="space-y-4" noValidate aria-busy={loading}>
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-xs font-semibold text-slate-300 mb-1.5 uppercase tracking-wider">
                 Email Address
               </label>
               <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => { setEmail(e.target.value); setFieldError(''); setError(''); }}
-                  aria-invalid={Boolean(fieldError)}
-                  aria-describedby={fieldError ? 'forgot-email-error' : undefined}
-                  placeholder="name@company.com"
-                  className={`w-full bg-slate-800/50 border rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-violet-500 transition-all duration-200 ${fieldError ? 'border-red-500' : 'border-slate-700/80'}`}
-                />
-                {fieldError && <p id="forgot-email-error" role="alert" className="mt-1 text-xs text-red-400">{fieldError}</p>}
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="name@company.com"
+                className="w-full bg-slate-800/50 border border-slate-700/80 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-violet-500 transition-all duration-200"
+              />
             </div>
 
             <button

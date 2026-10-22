@@ -17,7 +17,6 @@ export default function SectionCard({ title, icon, actionText, onActionClick, ch
         )}
         {actionText && (
           <button
-            type="button"
             onClick={onActionClick}
             className="text-xs font-medium text-purple-400 hover:text-purple-300 transition-colors flex items-center gap-1 bg-purple-500/10 hover:bg-purple-500/20 px-2.5 py-1 rounded-md border border-purple-500/20"
           >

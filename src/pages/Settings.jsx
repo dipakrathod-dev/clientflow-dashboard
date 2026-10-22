@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../hooks/useAuth';
-import { validateRequired } from '../utils/validation';
 
 export default function Settings() {
   const { currentUser, resetPassword, updateDisplayName, formatError, logout } = useAuth();
@@ -9,29 +8,23 @@ export default function Settings() {
   const [name, setName] = useState(fallbackName);
   const [isSendingReset, setIsSendingReset] = useState(false);
   const [isSavingName, setIsSavingName] = useState(false);
-  const [nameError, setNameError] = useState('');
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleNameSave = async (event) => {
     event.preventDefault();
     const trimmedName = name.trim();
-    const validationError = validateRequired(trimmedName, 'Display name');
 
-    if (validationError || trimmedName.length > 100) {
-      const nextError = validationError || 'Display name must be 100 characters or fewer.';
-      setNameError(nextError);
-      toast.error(nextError);
+    if (!trimmedName) {
+      toast.error('Please enter a display name.');
       return;
     }
 
-    setNameError('');
     setIsSavingName(true);
     try {
       await updateDisplayName(trimmedName);
       setName(trimmedName);
       toast.success('Display name updated.');
     } catch (error) {
-      toast.error(formatError(error?.code));
+      toast.error(formatError(error.code));
     } finally {
       setIsSavingName(false);
     }
@@ -48,21 +41,17 @@ export default function Settings() {
       await resetPassword(currentUser.email);
       toast.success(`Password reset link sent to ${currentUser.email}.`);
     } catch (error) {
-      toast.error(formatError(error?.code));
+      toast.error(formatError(error.code));
     } finally {
       setIsSendingReset(false);
     }
   };
 
   const handleLogout = async () => {
-    if (isLoggingOut) return;
-    setIsLoggingOut(true);
     try {
       await logout();
     } catch {
       toast.error('Unable to sign out. Please try again.');
-    } finally {
-      setIsLoggingOut(false);
     }
   };
 
@@ -93,21 +82,19 @@ export default function Settings() {
       <section className="rounded-2xl border border-slate-800 bg-slate-900/80 p-6" aria-labelledby="profile-heading">
         <h2 id="profile-heading" className="text-lg font-semibold">Profile details</h2>
         <p className="mt-2 text-sm text-slate-400">Update the name shown across your ClientFlow account.</p>
-        <form onSubmit={handleNameSave} className="mt-5 space-y-4" noValidate aria-busy={isSavingName}>
+        <form onSubmit={handleNameSave} className="mt-5 space-y-4">
           <div>
             <label htmlFor="display-name" className="text-sm font-medium text-slate-200">Display name</label>
             <input
               id="display-name"
               type="text"
               value={name}
-              onChange={(event) => { setName(event.target.value); setNameError(''); }}
+              onChange={(event) => setName(event.target.value)}
               maxLength={100}
               autoComplete="name"
-              aria-invalid={Boolean(nameError)}
-              aria-describedby={nameError ? 'display-name-error' : 'display-name-hint'}
-              className={`mt-2 w-full rounded-xl border bg-slate-950 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 ${nameError ? 'border-red-500' : 'border-slate-700'}`}
+              className="mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20"
+              aria-describedby="display-name-hint"
             />
-            {nameError && <p id="display-name-error" role="alert" className="mt-1.5 text-xs text-red-400">{nameError}</p>}
             <p id="display-name-hint" className="mt-1.5 text-xs text-slate-500">Use up to 100 characters.</p>
           </div>
           <button
@@ -131,8 +118,8 @@ export default function Settings() {
       <section className="rounded-2xl border border-slate-800 bg-slate-900/80 p-6" aria-labelledby="session-heading">
         <h2 id="session-heading" className="text-lg font-semibold">Session</h2>
         <p className="mt-2 text-sm text-slate-400">Sign out from this device.</p>
-        <button type="button" onClick={handleLogout} disabled={isLoggingOut} className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2.5 text-sm font-semibold text-red-300 hover:bg-red-500/20 disabled:opacity-60">
-          {isLoggingOut ? 'Signing Out...' : 'Sign Out'}
+        <button type="button" onClick={handleLogout} className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2.5 text-sm font-semibold text-red-300 hover:bg-red-500/20">
+          Sign Out
         </button>
       </section>
     </div>
