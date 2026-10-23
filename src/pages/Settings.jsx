@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../hooks/useAuth';
+import { validateDisplayName } from '../utils/validation';
 
 export default function Settings() {
   const { currentUser, resetPassword, updateDisplayName, formatError, logout } = useAuth();
@@ -13,8 +14,9 @@ export default function Settings() {
     event.preventDefault();
     const trimmedName = name.trim();
 
-    if (!trimmedName) {
-      toast.error('Please enter a display name.');
+    const validationError = validateDisplayName(trimmedName);
+    if (validationError) {
+      toast.error(validationError);
       return;
     }
 

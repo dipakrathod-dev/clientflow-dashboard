@@ -4,6 +4,8 @@ import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthContext.jsx';
 import { useAuth } from './hooks/useAuth';
 import DashboardLayout from './layout/DashboardLayout';
+import { PreferencesProvider } from './context/PreferencesContext.jsx';
+import { ErrorBoundary } from './components/ErrorBoundary';
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Clients = lazy(() => import('./pages/Clients'));
 const Projects = lazy(() => import('./pages/Projects'));
@@ -27,7 +29,9 @@ const ProtectedRoute = ({ children }) => {
 
 export default function App() {
   return (
-    <AuthProvider>
+    <ErrorBoundary>
+      <PreferencesProvider>
+        <AuthProvider>
       <BrowserRouter>
         <Toaster 
           position="top-right" 
@@ -115,7 +119,9 @@ export default function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
         </Suspense>
-      </BrowserRouter>
-    </AuthProvider>
+        </BrowserRouter>
+        </AuthProvider>
+      </PreferencesProvider>
+    </ErrorBoundary>
   );
 }

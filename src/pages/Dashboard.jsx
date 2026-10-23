@@ -1,10 +1,12 @@
-import { useCallback, useEffect, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { Link } from 'react-router-dom';
 import { db } from '../firebase/firebase';
 import { useAuth } from '../hooks/useAuth';
-import { RevenueChart, ClientGrowthChart } from '../components/AnalyticsChart';
 import toast from 'react-hot-toast';
+
+const RevenueChart = lazy(() => import('../components/AnalyticsChart').then((module) => ({ default: module.RevenueChart })));
+const ClientGrowthChart = lazy(() => import('../components/AnalyticsChart').then((module) => ({ default: module.ClientGrowthChart })));
 
 const emptyStats = { clients: 0, completedProjects: 0, pendingProjects: 0, projectValue: 0 };
 
@@ -102,10 +104,12 @@ export default function Dashboard() {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <RevenueChart />
-        <ClientGrowthChart />
-      </div>
+      <Suspense fallback={<div className="grid grid-cols-1 lg:grid-cols-2 gap-6" role="status"><div className="h-80 rounded-2xl bg-slate-900 animate-pulse" /><div className="h-80 rounded-2xl bg-slate-900 animate-pulse" /></div>}>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <RevenueChart />
+          <ClientGrowthChart />
+        </div>
+      </Suspense>
 
       <section className="bg-slate-900 border border-slate-800 p-5 rounded-2xl" aria-labelledby="activity-heading">
         <h2 id="activity-heading" className="text-lg font-semibold mb-4">Recent Clients</h2>
