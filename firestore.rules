@@ -7,7 +7,8 @@ service cloud.firestore {
     // (valid email, <=254 chars), company (1–120 chars), budget (number >=0),
     // status (Active | Pending | Completed), createdAt and updatedAt (timestamps).
     // createdAt and ownerUid are immutable after creation.
-    // projects/{projectId}: read-only documents scoped by ownerUid.
+    // projects/{projectId}: owner-scoped project records.
+    // invoices/{invoiceId}: owner-scoped invoice records.
 
     function isAuthenticated() {
       return request.auth != null;
@@ -55,6 +56,97 @@ service cloud.firestore {
         && data.updatedAt is timestamp;
     }
 
+    function hasValidProjectFields(data) {
+      return data.keys().hasAll([
+          'ownerUid',
+          'name',
+          'client',
+          'progress',
+          'deadline',
+          'status',
+          'budget',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'ownerUid',
+          'name',
+          'client',
+          'progress',
+          'deadline',
+          'status',
+          'budget',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.ownerUid is string
+        && data.name is string
+        && data.name.size() > 0
+        && data.name.size() <= 120
+        && data.client is string
+        && data.client.size() > 0
+        && data.client.size() <= 120
+        && data.progress is number
+        && data.progress >= 0
+        && data.progress <= 100
+        && data.deadline is string
+        && data.deadline.size() > 0
+        && data.deadline.size() <= 50
+        && data.status in ['Active', 'Pending', 'Completed']
+        && data.budget is number
+        && data.budget >= 0
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function hasValidInvoiceFields(data) {
+      return data.keys().hasAll([
+          'ownerUid',
+          'invoiceNumber',
+          'client',
+          'project',
+          'amount',
+          'paymentMethod',
+          'dueDate',
+          'status',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'ownerUid',
+          'invoiceNumber',
+          'client',
+          'project',
+          'amount',
+          'paymentMethod',
+          'dueDate',
+          'status',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.ownerUid is string
+        && data.invoiceNumber is string
+        && data.invoiceNumber.size() > 0
+        && data.invoiceNumber.size() <= 50
+        && data.client is string
+        && data.client.size() > 0
+        && data.client.size() <= 120
+        && data.project is string
+        && data.project.size() > 0
+        && data.project.size() <= 120
+        && data.amount is number
+        && data.amount >= 0
+        && data.paymentMethod is string
+        && data.paymentMethod.size() > 0
+        && data.paymentMethod.size() <= 80
+        && data.dueDate is string
+        && data.dueDate.size() > 0
+        && data.dueDate.size() <= 50
+        && data.status in ['Paid', 'Pending', 'Overdue']
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
     match /clients/{clientId} {
       allow read, delete: if owns(resource.data);
 
@@ -72,7 +164,35 @@ service cloud.firestore {
     }
 
     match /projects/{projectId} {
-      allow read: if owns(resource.data);
+      allow read, delete: if owns(resource.data);
+
+      allow create: if isAuthenticated()
+        && request.resource.data.ownerUid == request.auth.uid
+        && hasValidProjectFields(request.resource.data)
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+
+      allow update: if owns(resource.data)
+        && hasValidProjectFields(request.resource.data)
+        && request.resource.data.ownerUid == resource.data.ownerUid
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.updatedAt == request.time;
+    }
+
+    match /invoices/{invoiceId} {
+      allow read, delete: if owns(resource.data);
+
+      allow create: if isAuthenticated()
+        && request.resource.data.ownerUid == request.auth.uid
+        && hasValidInvoiceFields(request.resource.data)
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+
+      allow update: if owns(resource.data)
+        && hasValidInvoiceFields(request.resource.data)
+        && request.resource.data.ownerUid == resource.data.ownerUid
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.updatedAt == request.time;
     }
 
     // Deny every collection and operation not explicitly allowed above.

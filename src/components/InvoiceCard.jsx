@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function InvoiceCard({ invoice }) {
+export default function InvoiceCard({ invoice, onEdit, onDelete }) {
   const getStatusBadge = (status) => {
     switch (status) {
       case 'Paid':
@@ -21,7 +21,7 @@ export default function InvoiceCard({ invoice }) {
       <div>
         <div className="flex justify-between items-start mb-2">
           <span className="text-xs font-mono font-bold text-violet-400 bg-violet-500/10 px-2.5 py-1 rounded-lg border border-violet-500/20">
-            {invoice.id}
+            {invoice.invoiceNumber || invoice.id}
           </span>
           <span className={`px-2.5 py-0.5 text-xs font-medium border rounded-full ${statusBadgeClass}`}>
             {invoice.status}
@@ -39,9 +39,16 @@ export default function InvoiceCard({ invoice }) {
         </div>
         <div className="text-right">
           <span className="text-xs text-slate-400">Due Date</span>
-          <p className="text-sm font-semibold text-slate-200 mt-0.5">{invoice.dueDate}</p>
+          <p className="text-sm font-semibold text-slate-200 mt-0.5">{invoice.dueDate || 'Not set'}</p>
         </div>
       </div>
+
+      {(onEdit || onDelete) && (
+        <div className="flex justify-end gap-2 pt-2">
+          {onEdit && <button type="button" onClick={() => onEdit(invoice)} className="rounded-lg px-3 py-1.5 text-xs font-semibold text-slate-300 hover:bg-slate-800">Edit</button>}
+          {onDelete && <button type="button" onClick={() => onDelete(invoice)} className="rounded-lg px-3 py-1.5 text-xs font-semibold text-red-300 hover:bg-red-500/10">Delete</button>}
+        </div>
+      )}
 
     </div>
   );

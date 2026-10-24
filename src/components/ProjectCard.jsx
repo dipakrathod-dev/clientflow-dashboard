@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function ProjectCard({ project }) {
+export default function ProjectCard({ project, onEdit, onDelete }) {
   const getProgressColor = (progress) => {
     if (progress <= 30) return 'bg-red-500';
     if (progress <= 70) return 'bg-yellow-500';
@@ -22,6 +22,9 @@ export default function ProjectCard({ project }) {
 
   const progressColorClass = getProgressColor(project.progress);
   const statusBadgeClass = getStatusBadge(project.status);
+  const formattedDeadline = project.deadline
+    ? new Date(`${project.deadline}T00:00:00`).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+    : 'Not set';
 
   return (
     <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-md transition-all duration-300 transform hover:-translate-y-1 hover:border-violet-500/50 hover:shadow-lg hover:shadow-violet-500/10 flex flex-col justify-between gap-5">
@@ -54,13 +57,20 @@ export default function ProjectCard({ project }) {
       <div className="flex items-center justify-between text-xs text-slate-400 pt-2 border-t border-slate-800/80">
         <div>
           <span>Deadline</span>
-          <p className="text-slate-200 font-semibold text-sm mt-0.5">{project.deadline}</p>
+          <p className="text-slate-200 font-semibold text-sm mt-0.5">{formattedDeadline}</p>
         </div>
         <div className="text-right">
           <span>Budget</span>
           <p className="text-violet-400 font-bold text-sm mt-0.5">₹{project.budget?.toLocaleString('en-IN')}</p>
         </div>
       </div>
+
+      {(onEdit || onDelete) && (
+        <div className="flex justify-end gap-2 pt-2">
+          {onEdit && <button type="button" onClick={() => onEdit(project)} className="rounded-lg px-3 py-1.5 text-xs font-semibold text-slate-300 hover:bg-slate-800">Edit</button>}
+          {onDelete && <button type="button" onClick={() => onDelete(project)} className="rounded-lg px-3 py-1.5 text-xs font-semibold text-red-300 hover:bg-red-500/10">Delete</button>}
+        </div>
+      )}
 
     </div>
   );

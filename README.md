@@ -1,6 +1,6 @@
 # ⚡ ClientFlow Dashboard
 
-ClientFlow is a responsive dashboard prototype for freelancers. Firebase Authentication protects the app, and each account's client records are stored in Firestore. Project and invoice screens and the trend charts currently use clearly labeled sample data.
+ClientFlow is a responsive dashboard for freelancers. Firebase Authentication protects the app, and each account's client, project, and invoice records are stored in Firestore. Dashboard trend charts and the small recent-project preview remain clearly labeled sample data.
 
 - **Live dashboard:** https://clientflow-dashboard-dev.vercel.app/
 
@@ -16,14 +16,14 @@ ClientFlow is a responsive dashboard prototype for freelancers. Firebase Authent
 * 🔒 **Firebase Auth:** Email/password and Google sign-in, registration, password reset, and protected routes.
 * 👥 **Client Management:** Create, search, edit, and delete per-user client records in Firestore.
 * 📊 **Dashboard:** Per-user client and project totals, with trend charts marked as sample data.
-* 🧾 **Preview Screens:** Searchable sample project and invoice lists.
+* 🧾 **Project & Invoice Management:** Create, search, filter, edit, and delete per-user project and invoice records in Firestore.
 * 🌓 **Responsive UI:** Modern, dark-themed dashboard UI tailored for all screen sizes.
 * 💾 **Saved preferences:** Theme and sidebar preferences persist in the browser.
 * ♿ **Accessible states:** Dialog semantics, field-level validation messages, and keyboard escape handling.
 
 ## Firebase setup
 
-Copy `.env.example` to `.env` for local development and provide the same `VITE_FIREBASE_*` values in Vercel project settings. Deploy the Firestore rules in `firestore.rules` before enabling client data operations.
+Copy `.env.example` to `.env` for local development and provide the same `VITE_FIREBASE_*` values in Vercel project settings. Deploy the Firestore rules in `firestore.rules` before enabling client, project, or invoice data operations.
 
 ```bash
 firebase deploy --only firestore:rules
