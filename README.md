@@ -15,7 +15,7 @@ ClientFlow is a responsive dashboard for freelancers. Firebase Authentication pr
 ## 🌟 Key Features
 * 🔒 **Firebase Auth:** Email/password and Google sign-in, registration, password reset, and protected routes.
 * 👥 **Client Management:** Create, search, edit, and delete per-user client records in Firestore.
-* 📊 **Dashboard:** Per-user client and project totals, with trend charts marked as sample data.
+* 📊 **Dashboard:** Per-user client and project totals with live six-month revenue and client-growth trends.
 * 🧾 **Project & Invoice Management:** Create, search, filter, edit, and delete per-user project and invoice records in Firestore.
 * 🌓 **Responsive UI:** Modern, dark-themed dashboard UI tailored for all screen sizes.
 * 💾 **Saved preferences:** Theme and sidebar preferences persist in the browser.

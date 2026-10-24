@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { db } from '../firebase/firebase';
 import { useAuth } from '../hooks/useAuth';
 import toast from 'react-hot-toast';
+import { buildClientGrowthTrend, buildRevenueTrend } from '../utils/dashboardMetrics.ts';
 
 const RevenueChart = lazy(() => import('../components/AnalyticsChart').then((module) => ({ default: module.RevenueChart })));
 const ClientGrowthChart = lazy(() => import('../components/AnalyticsChart').then((module) => ({ default: module.ClientGrowthChart })));
@@ -14,12 +15,16 @@ export default function Dashboard() {
   const { currentUser } = useAuth();
   const [stats, setStats] = useState(emptyStats);
   const [recentActivity, setRecentActivity] = useState([]);
+  const [revenueTrend, setRevenueTrend] = useState([]);
+  const [clientGrowthTrend, setClientGrowthTrend] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const fetchDashboardData = useCallback(async () => {
     if (!currentUser?.uid) {
       setStats(emptyStats);
       setRecentActivity([]);
+      setRevenueTrend([]);
+      setClientGrowthTrend([]);
       setLoading(false);
       return;
     }
@@ -28,7 +33,12 @@ export default function Dashboard() {
     try {
       const clientsQuery = query(collection(db, 'clients'), where('ownerUid', '==', currentUser.uid));
       const projectsQuery = query(collection(db, 'projects'), where('ownerUid', '==', currentUser.uid));
-      const [clientSnap, projectSnap] = await Promise.all([getDocs(clientsQuery), getDocs(projectsQuery)]);
+      const invoicesQuery = query(collection(db, 'invoices'), where('ownerUid', '==', currentUser.uid));
+      const [clientSnap, projectSnap, invoiceSnap] = await Promise.all([
+        getDocs(clientsQuery),
+        getDocs(projectsQuery),
+        getDocs(invoicesQuery),
+      ]);
 
       let completedProjects = 0;
       let pendingProjects = 0;
@@ -47,9 +57,13 @@ export default function Dashboard() {
         projectValue,
       });
 
+      const clients = clientSnap.docs.map((clientDoc) => ({ id: clientDoc.id, ...clientDoc.data() }));
+      const invoices = invoiceSnap.docs.map((invoiceDoc) => ({ id: invoiceDoc.id, ...invoiceDoc.data() }));
+      setRevenueTrend(buildRevenueTrend(invoices));
+      setClientGrowthTrend(buildClientGrowthTrend(clients));
+
       setRecentActivity(
-        clientSnap.docs
-          .map((clientDoc) => ({ id: clientDoc.id, ...clientDoc.data() }))
+        clients
           .sort((a, b) => (b.createdAt?.toMillis?.() ?? 0) - (a.createdAt?.toMillis?.() ?? 0))
           .slice(0, 5)
       );
@@ -106,8 +120,8 @@ export default function Dashboard() {
 
       <Suspense fallback={<div className="grid grid-cols-1 lg:grid-cols-2 gap-6" role="status"><div className="h-80 rounded-2xl bg-slate-900 animate-pulse" /><div className="h-80 rounded-2xl bg-slate-900 animate-pulse" /></div>}>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <RevenueChart />
-          <ClientGrowthChart />
+          <RevenueChart data={revenueTrend} />
+          <ClientGrowthChart data={clientGrowthTrend} />
         </div>
       </Suspense>
 

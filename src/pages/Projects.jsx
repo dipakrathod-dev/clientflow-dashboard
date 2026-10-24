@@ -6,7 +6,7 @@ import FilterDropdown from '../components/FilterDropDown';
 import ProjectCard from '../components/ProjectCard';
 import EmptyState from '../components/EmptyState';
 import DeleteModal from '../components/DeleteModal';
-import { addOwnedRecord, deleteOwnedRecord, getOwnedRecords, updateOwnedRecord } from '../utils/recordService';
+import { addOwnedRecord, deleteOwnedRecord, getOwnedRecords, updateOwnedRecord } from '../utils/recordService.ts';
 import { validateProjectForm } from '../utils/validation';
 
 const emptyForm = { name: '', client: '', progress: '0', deadline: '', status: 'Active', budget: '' };

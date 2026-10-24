@@ -6,7 +6,7 @@ import FilterDropdown from '../components/FilterDropDown';
 import InvoiceCard from '../components/InvoiceCard';
 import EmptyState from '../components/EmptyState';
 import DeleteModal from '../components/DeleteModal';
-import { addOwnedRecord, deleteOwnedRecord, getOwnedRecords, updateOwnedRecord } from '../utils/recordService';
+import { addOwnedRecord, deleteOwnedRecord, getOwnedRecords, updateOwnedRecord } from '../utils/recordService.ts';
 import { validateInvoiceForm } from '../utils/validation';
 
 const emptyForm = { invoiceNumber: '', client: '', project: '', amount: '', paymentMethod: '', dueDate: '', status: 'Pending' };
